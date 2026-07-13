@@ -688,6 +688,30 @@ ul {
   font-size: 0.9rem;
 }
 
+.contact__address-text {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.contact__map-card {
+  margin-top: 20px;
+  height: 168px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.contact__map-card iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .contact__form {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -796,6 +820,15 @@ ul {
 
 .footer__contact ul li {
   font-size: 0.9rem;
+}
+
+.footer__map-link {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color var(--transition);
+}
+
+.footer__map-link:hover {
+  color: var(--lavender);
 }
 
 .footer__bottom {
@@ -967,6 +1000,10 @@ ul {
 
   .contact__form {
     padding: 28px 20px;
+  }
+
+  .contact__map-card {
+    height: 150px;
   }
 }
 

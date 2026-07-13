@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel — Renata Batista</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__brand">
+        <strong>Renata Batista</strong>
+        <span>Painel de agenda</span>
+      </div>
+      <nav class="sidebar__nav">
+        <button class="nav-item active" data-view="calendar">Calendário</button>
+        <button class="nav-item" data-view="appointments">Consultas</button>
+        <button class="nav-item" data-view="waiting">Lista de espera</button>
+        <button class="nav-item" data-view="settings">Configurações</button>
+      </nav>
+      <div class="sidebar__footer">
+        <button class="btn btn--lock" id="btnLockSchedule">Fechar agenda</button>
+        <button class="btn btn--ghost" id="btnLogout">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+        <div class="topbar__info">
+          <span id="adminUser"></span>
+          <span class="badge" id="lockBadge">Agenda aberta</span>
+        </div>
+      </header>
+
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__box">
+      <button class="modal__close" data-close aria-label="Fechar">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/admin/js/admin.js"></script>
+</body>
+</html>

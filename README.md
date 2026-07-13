@@ -1,65 +1,93 @@
 # Renata Batista — Psicologia & Arteterapia
 
-Site institucional da psicóloga e arteterapeuta Renata Batista. Landing page responsiva com seções de apresentação, serviços, contato e formulário.
+Site institucional com **sistema de agendamento online**, painel administrativo privado e lista de espera.
+
+## Funcionalidades
+
+### Site público
+- Apresentação de serviços e contato
+- Agendamento em 5 passos (serviço → data → horário → dados → confirmação)
+- Bloqueio automático de horários reservados (sem double-booking)
+- Lista de espera quando a agenda está fechada
+- Aviso de privacidade (LGPD) — coleta apenas nome e contato
+
+### Painel admin (`/admin/login`)
+- Login seguro com JWT em cookie httpOnly
+- Calendário: visão dia, semana e mês
+- CRUD de consultas (criar, editar, reagendar, cancelar, confirmar)
+- **Fechar agenda** / **Abrir agenda**
+- Horários de trabalho, pausas, datas indisponíveis, bloqueio manual de slots
+- Lista de espera com status: aguardando, contactado, agendado, cancelado
+- Notificações por e-mail e WhatsApp (webhook configurável)
+
+## Instalação
+
+```bash
+cd renata-batista-site
+npm install
+cp .env.example .env
+# Edite .env — altere JWT_SECRET, ADMIN_PASSWORD e credenciais SMTP
+npm run setup
+npm start
+```
+
+- **Site:** http://localhost:3000
+- **Painel:** http://localhost:3000/admin/login
+
+## Configuração (.env)
+
+| Variável | Descrição |
+|----------|-----------|
+| `JWT_SECRET` | Segredo para tokens (mín. 32 caracteres) |
+| `ADMIN_USERNAME` | Usuário do painel |
+| `ADMIN_PASSWORD` | Senha do painel |
+| `NOTIFY_EMAIL` | E-mail que recebe alertas |
+| `SMTP_*` | Servidor de e-mail (Gmail, SendGrid, etc.) |
+| `WHATSAPP_WEBHOOK_URL` | URL de API para enviar WhatsApp |
+| `WHATSAPP_NOTIFY_NUMBER` | Número que recebe alertas |
+
+## Segurança e LGPD
+
+- Painel **não indexado** (`robots.txt`, `noindex`)
+- Dashboard **inacessível** sem autenticação
+- Coleta mínima de dados (nome, telefone, e-mail opcional)
+- **Sem** campos clínicos, diagnósticos ou prontuário
+- Rate limiting no agendamento público
+- Cookies httpOnly + SameSite
+- Banco SQLite local em `data/` (não versionado)
 
 ## Estrutura
 
 ```
-renata-batista-site/
-├── index.html          # Página principal
-├── css/
-│   └── styles.css      # Estilos
-├── js/
-│   └── main.js         # Interatividade (menu, scroll, formulário)
-└── README.md
+├── index.html          # Site público
+├── css/ js/            # Estilos e scripts públicos
+├── admin/              # Painel (login + dashboard)
+├── server/             # API Node.js + Express
+│   ├── index.js
+│   ├── db.js
+│   ├── slotEngine.js   # Motor de horários + anti double-booking
+│   ├── notifications.js
+│   └── routes/
+├── data/               # Banco SQLite (gerado automaticamente)
+└── package.json
 ```
 
-## Como visualizar
+## Deploy
 
-Abra o arquivo `index.html` diretamente no navegador, ou use uma extensão Live Server no VS Code.
-
-### Com Live Server (VS Code)
-
-1. Instale a extensão **Live Server**
-2. Clique com botão direito em `index.html`
-3. Selecione **Open with Live Server**
-
-### Com Python (servidor local)
+Este projeto requer **Node.js** em servidor (Railway, Render, VPS, etc.). GitHub Pages **não** suporta o backend.
 
 ```bash
-python -m http.server 8080
+npm start
+# ou com PM2: pm2 start server/index.js --name renata-site
 ```
 
-Acesse: http://localhost:8080
-
-## Personalização
-
-Antes de publicar, atualize:
-
-- **WhatsApp:** links `wa.me/5500000000000` no HTML
-- **E-mail, Instagram e telefone** na seção de contato e footer
-- **Fotos:** substitua as URLs do Unsplash por imagens reais em uma pasta `assets/images/`
-- **CRP e textos** conforme informações oficiais
-
-## Publicar no GitHub
+## GitHub
 
 ```bash
-git init
 git add .
-git commit -m "Initial commit: landing page Renata Batista"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/renata-batista-site.git
-git push -u origin main
+git commit -m "Sistema de agendamento com painel admin"
+git push origin main
 ```
-
-Para hospedar gratuitamente, use [GitHub Pages](https://pages.github.com/): Settings → Pages → Source: branch `main`.
-
-## Tecnologias
-
-- HTML5 semântico
-- CSS3 (Grid, Flexbox, custom properties)
-- JavaScript vanilla
-- Google Fonts (Cormorant Garamond + Inter)
 
 ## Licença
 
