@@ -1,12 +1,47 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import { getDb, nowIso, transaction, lastInsertId } from '../db.js';
+import {
+  getDb,
+  nowIso,
+  transaction,
+  lastInsertId,
+  buildReferenceCode,
+  logAppointmentAudit,
+  ensureAppointmentReference,
+} from '../db.js';
 import { authMiddleware, cookieOptions, signToken } from '../auth.js';
-import { getAvailableSlots, getSettings, timeToMinutes, minutesToTime } from '../slotEngine.js';
-import { notifyCancellation, notifyNewBooking } from '../notifications.js';
+import {
+  getAvailableSlots,
+  getSettings,
+  timeToMinutes,
+  minutesToTime,
+  suggestNextSlots,
+} from '../slotEngine.js';
+import {
+  notifyCancellation,
+  notifyNewBooking,
+  sendClientConfirmations,
+  sendClientReminder,
+} from '../notifications.js';
 import { normalizeAttendance, parseServiceId } from '../utils.js';
+import { subscribe, appointmentChanged } from '../events.js';
+import { getOnlineMeetingLink } from '../config/practice.js';
 
 const router = Router();
+
+const VALID_STATUSES = new Set(['pending', 'confirmed', 'cancelled', 'completed', 'rescheduled']);
+
+function actorFrom(req) {
+  return {
+    actor: req.admin?.username || 'admin',
+    actorId: req.admin?.id || null,
+  };
+}
+
+function conflictPayload(date, startTime, message = 'Horário já ocupado') {
+  const suggestions = suggestNextSlots({ fromDate: date, afterTime: startTime, limit: 5 });
+  return { error: message, code: 'SLOT_TAKEN', ...(suggestions.length ? { suggestions } : {}) };
+}
 
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -33,8 +68,31 @@ router.get('/me', authMiddleware, (req, res) => {
   res.json({ username: req.admin.username });
 });
 
+/** Live calendar sync via Server-Sent Events */
+router.get('/events', authMiddleware, (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders?.();
+
+  res.write(`event: connected\ndata: ${JSON.stringify({ ok: true, at: nowIso() })}\n\n`);
+
+  const unsubscribe = subscribe((message) => {
+    res.write(`id: ${message.id}\nevent: ${message.event}\ndata: ${JSON.stringify(message)}\n\n`);
+  });
+
+  const heartbeat = setInterval(() => {
+    res.write(`: ping ${Date.now()}\n\n`);
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    unsubscribe();
+  });
+});
+
 router.get('/appointments', authMiddleware, (req, res) => {
-  const { from, to, date, status } = req.query;
+  const { from, to, date, status, q } = req.query;
   let query = 'SELECT * FROM appointments WHERE 1=1';
   const params = [];
 
@@ -54,10 +112,30 @@ router.get('/appointments', authMiddleware, (req, res) => {
     query += ' AND status = ?';
     params.push(status);
   }
+  if (q?.trim()) {
+    query += ' AND (patient_name LIKE ? OR patient_email LIKE ? OR patient_phone LIKE ? OR reference_code LIKE ?)';
+    const like = `%${q.trim()}%`;
+    params.push(like, like, like, like);
+  }
 
   query += ' ORDER BY date ASC, start_time ASC';
   const rows = getDb().prepare(query).all(...params);
   res.json(rows);
+});
+
+router.get('/appointments/:id', authMiddleware, (req, res) => {
+  const id = Number(req.params.id);
+  const appt = getDb().prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  if (!appt) return res.status(404).json({ error: 'Consulta não encontrada' });
+
+  const audit = getDb().prepare(`
+    SELECT * FROM appointment_audit
+    WHERE appointment_id = ?
+    ORDER BY created_at DESC, id DESC
+    LIMIT 50
+  `).all(id);
+
+  res.json({ ...appt, audit });
 });
 
 router.post('/appointments', authMiddleware, async (req, res) => {
@@ -66,14 +144,19 @@ router.post('/appointments', authMiddleware, async (req, res) => {
   const {
     patient_name, patient_email, patient_phone,
     service_id, date, start_time, status = 'confirmed',
-    attendance_type,
+    attendance_type, notes,
   } = req.body;
 
   const parsedServiceId = parseServiceId(service_id);
   const parsedAttendance = normalizeAttendance(attendance_type);
+  const { actor, actorId } = actorFrom(req);
 
   if (!patient_name || !patient_phone || !date || !start_time) {
     return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
+  }
+
+  if (status && !VALID_STATUSES.has(status)) {
+    return res.status(400).json({ error: 'Status inválido' });
   }
 
   let serviceName = null;
@@ -86,35 +169,63 @@ router.post('/appointments', authMiddleware, async (req, res) => {
     }
   }
   const endTime = minutesToTime(timeToMinutes(start_time) + duration);
+  const notesValue = notes?.trim() ? String(notes).trim().slice(0, 1000) : null;
 
   try {
     const appointment = transaction(() => {
-      const taken = db.prepare(`
-        SELECT id FROM appointments
-        WHERE date = ? AND start_time = ? AND status IN ('pending', 'confirmed')
-      `).get(date, start_time);
-      if (taken) throw new Error('SLOT_TAKEN');
+      if (status === 'pending' || status === 'confirmed') {
+        const taken = db.prepare(`
+          SELECT id FROM appointments
+          WHERE date = ? AND start_time = ? AND status IN ('pending', 'confirmed')
+        `).get(date, start_time);
+        if (taken) throw Object.assign(new Error('SLOT_TAKEN'), { code: 'SLOT_TAKEN' });
+      }
 
       db.prepare(`
         INSERT INTO appointments
-          (patient_name, patient_email, patient_phone, service_id, service_name, date, start_time, end_time, status, attendance_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (patient_name, patient_email, patient_phone, service_id, service_name,
+           date, start_time, end_time, status, attendance_type, meeting_link, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
-        patient_name.trim(), patient_email?.trim() || null, patient_phone.trim(),
-        parsedServiceId, serviceName, date, start_time, endTime, status,
-        parsedAttendance
+        patient_name.trim(),
+        patient_email?.trim() || null,
+        patient_phone.trim(),
+        parsedServiceId,
+        serviceName,
+        date,
+        start_time,
+        endTime,
+        status,
+        parsedAttendance,
+        parsedAttendance === 'online'
+          ? (req.body.meeting_link?.trim() || getOnlineMeetingLink() || null)
+          : null,
+        notesValue
       );
       const newId = lastInsertId(db);
-      return db.prepare('SELECT * FROM appointments WHERE id = ?').get(newId);
+      const code = buildReferenceCode(newId, date);
+      db.prepare('UPDATE appointments SET reference_code = ? WHERE id = ?').run(code, newId);
+
+      logAppointmentAudit(db, {
+        appointmentId: newId,
+        action: 'created',
+        actor,
+        actorId,
+        details: { source: 'admin', date, start_time, status },
+      });
+
+      return ensureAppointmentReference(db, db.prepare('SELECT * FROM appointments WHERE id = ?').get(newId));
     });
 
+    appointmentChanged('created', appointment, { source: 'admin' });
+
     if (settings.notify_email && status === 'confirmed') {
-      await notifyNewBooking(appointment, settings.notify_email);
+      await notifyNewBooking(appointment, settings.notify_email).catch(() => {});
     }
     res.status(201).json(appointment);
   } catch (err) {
-    if (err.message === 'SLOT_TAKEN') {
-      return res.status(409).json({ error: 'Horário já ocupado' });
+    if (err.code === 'SLOT_TAKEN' || err.message === 'SLOT_TAKEN') {
+      return res.status(409).json(conflictPayload(date, start_time));
     }
     throw err;
   }
@@ -129,9 +240,10 @@ router.put('/appointments/:id', authMiddleware, async (req, res) => {
 
   const {
     patient_name, patient_email, patient_phone,
-    service_id, date, start_time, status, attendance_type,
+    service_id, date, start_time, status, attendance_type, meeting_link, notes,
   } = req.body;
 
+  const { actor, actorId } = actorFrom(req);
   const newDate = date || existing.date;
   const newStart = start_time || existing.start_time;
   let duration = settings.session_duration_minutes;
@@ -153,25 +265,40 @@ router.put('/appointments/:id', authMiddleware, async (req, res) => {
 
   const endTime = minutesToTime(timeToMinutes(newStart) + duration);
   const newStatus = status || existing.status;
+  if (!VALID_STATUSES.has(newStatus)) {
+    return res.status(400).json({ error: 'Status inválido' });
+  }
+
   const newAttendance = attendance_type !== undefined
     ? normalizeAttendance(attendance_type)
     : normalizeAttendance(existing.attendance_type);
 
+  const newMeetingLink = meeting_link !== undefined
+    ? (newAttendance === 'online' ? (meeting_link?.trim() || null) : null)
+    : (newAttendance === 'online' ? existing.meeting_link : null);
+
+  const newNotes = notes !== undefined
+    ? (notes?.trim() ? String(notes).trim().slice(0, 1000) : null)
+    : existing.notes;
+
+  const dateChanged = newDate !== existing.date || newStart !== existing.start_time;
+  const statusChanged = newStatus !== existing.status;
+
   try {
     const updated = transaction(() => {
-      if (newDate !== existing.date || newStart !== existing.start_time) {
+      if (dateChanged && (newStatus === 'pending' || newStatus === 'confirmed')) {
         const taken = db.prepare(`
           SELECT id FROM appointments
           WHERE date = ? AND start_time = ? AND status IN ('pending', 'confirmed') AND id != ?
         `).get(newDate, newStart, id);
-        if (taken) throw new Error('SLOT_TAKEN');
+        if (taken) throw Object.assign(new Error('SLOT_TAKEN'), { code: 'SLOT_TAKEN' });
       }
 
       db.prepare(`
         UPDATE appointments SET
           patient_name = ?, patient_email = ?, patient_phone = ?,
           service_id = ?, service_name = ?, date = ?, start_time = ?, end_time = ?,
-          status = ?, attendance_type = ?, updated_at = ?
+          status = ?, attendance_type = ?, meeting_link = ?, notes = ?, updated_at = ?
         WHERE id = ?
       `).run(
         patient_name ?? existing.patient_name,
@@ -181,15 +308,151 @@ router.put('/appointments/:id', authMiddleware, async (req, res) => {
         serviceName,
         newDate, newStart, endTime, newStatus,
         newAttendance,
+        newMeetingLink,
+        newNotes,
         nowIso(), id
       );
+
+      let action = 'updated';
+      if (dateChanged) action = 'rescheduled';
+      else if (statusChanged && newStatus === 'cancelled') action = 'cancelled';
+      else if (statusChanged && newStatus === 'confirmed') action = 'confirmed';
+      else if (statusChanged && newStatus === 'completed') action = 'completed';
+
+      logAppointmentAudit(db, {
+        appointmentId: id,
+        action,
+        actor,
+        actorId,
+        details: {
+          from: { date: existing.date, start_time: existing.start_time, status: existing.status },
+          to: { date: newDate, start_time: newStart, status: newStatus },
+        },
+      });
+
       return db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
     });
 
+    appointmentChanged(dateChanged ? 'rescheduled' : 'updated', updated, { source: 'admin' });
     res.json(updated);
   } catch (err) {
-    if (err.message === 'SLOT_TAKEN') {
-      return res.status(409).json({ error: 'Horário já ocupado' });
+    if (err.code === 'SLOT_TAKEN' || err.message === 'SLOT_TAKEN') {
+      return res.status(409).json(conflictPayload(newDate, newStart));
+    }
+    throw err;
+  }
+});
+
+router.post('/appointments/:id/confirm', authMiddleware, async (req, res) => {
+  const db = getDb();
+  const id = Number(req.params.id);
+  const existing = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Consulta não encontrada' });
+  if (existing.status === 'cancelled') {
+    return res.status(400).json({ error: 'Não é possível confirmar uma consulta cancelada' });
+  }
+
+  const { actor, actorId } = actorFrom(req);
+  const updated = transaction(() => {
+    db.prepare(`UPDATE appointments SET status = 'confirmed', updated_at = ? WHERE id = ?`)
+      .run(nowIso(), id);
+    logAppointmentAudit(db, {
+      appointmentId: id,
+      action: 'confirmed',
+      actor,
+      actorId,
+      details: { previous_status: existing.status },
+    });
+    return db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  });
+
+  appointmentChanged('confirmed', updated, { source: 'admin' });
+  res.json(updated);
+});
+
+router.post('/appointments/:id/complete', authMiddleware, async (req, res) => {
+  const db = getDb();
+  const id = Number(req.params.id);
+  const existing = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Consulta não encontrada' });
+  if (existing.status === 'cancelled') {
+    return res.status(400).json({ error: 'Não é possível concluir uma consulta cancelada' });
+  }
+
+  const { actor, actorId } = actorFrom(req);
+  const updated = transaction(() => {
+    db.prepare(`UPDATE appointments SET status = 'completed', updated_at = ? WHERE id = ?`)
+      .run(nowIso(), id);
+    logAppointmentAudit(db, {
+      appointmentId: id,
+      action: 'completed',
+      actor,
+      actorId,
+      details: { previous_status: existing.status },
+    });
+    return db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  });
+
+  appointmentChanged('completed', updated, { source: 'admin' });
+  res.json(updated);
+});
+
+router.post('/appointments/:id/reschedule', authMiddleware, async (req, res) => {
+  const db = getDb();
+  const settings = getSettings();
+  const id = Number(req.params.id);
+  const existing = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Consulta não encontrada' });
+
+  const { date, start_time, status } = req.body;
+  if (!date || !start_time) {
+    return res.status(400).json({ error: 'Informe a nova data e horário' });
+  }
+
+  const duration = timeToMinutes(existing.end_time) - timeToMinutes(existing.start_time)
+    || settings.session_duration_minutes;
+  const endTime = minutesToTime(timeToMinutes(start_time) + duration);
+  const newStatus = status && VALID_STATUSES.has(status)
+    ? status
+    : (existing.status === 'cancelled' || existing.status === 'completed' ? 'confirmed' : existing.status);
+
+  const { actor, actorId } = actorFrom(req);
+
+  try {
+    const updated = transaction(() => {
+      if (newStatus === 'pending' || newStatus === 'confirmed') {
+        const taken = db.prepare(`
+          SELECT id FROM appointments
+          WHERE date = ? AND start_time = ? AND status IN ('pending', 'confirmed') AND id != ?
+        `).get(date, start_time, id);
+        if (taken) throw Object.assign(new Error('SLOT_TAKEN'), { code: 'SLOT_TAKEN' });
+      }
+
+      db.prepare(`
+        UPDATE appointments SET
+          date = ?, start_time = ?, end_time = ?, status = ?, updated_at = ?
+        WHERE id = ?
+      `).run(date, start_time, endTime, newStatus, nowIso(), id);
+
+      logAppointmentAudit(db, {
+        appointmentId: id,
+        action: 'rescheduled',
+        actor,
+        actorId,
+        details: {
+          from: { date: existing.date, start_time: existing.start_time, status: existing.status },
+          to: { date, start_time, status: newStatus },
+        },
+      });
+
+      return db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+    });
+
+    appointmentChanged('rescheduled', updated, { source: 'admin' });
+    res.json(updated);
+  } catch (err) {
+    if (err.code === 'SLOT_TAKEN' || err.message === 'SLOT_TAKEN') {
+      return res.status(409).json(conflictPayload(date, start_time));
     }
     throw err;
   }
@@ -205,16 +468,70 @@ router.post('/appointments/:id/cancel', authMiddleware, async (req, res) => {
     return res.json(existing);
   }
 
-  db.prepare(`
-    UPDATE appointments SET status = 'cancelled', updated_at = ? WHERE id = ?
-  `).run(nowIso(), id);
+  const { actor, actorId } = actorFrom(req);
+  const updated = transaction(() => {
+    db.prepare(`
+      UPDATE appointments SET status = 'cancelled', updated_at = ? WHERE id = ?
+    `).run(nowIso(), id);
 
-  const updated = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+    logAppointmentAudit(db, {
+      appointmentId: id,
+      action: 'cancelled',
+      actor,
+      actorId,
+      details: { previous_status: existing.status },
+    });
+
+    return db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  });
+
+  appointmentChanged('cancelled', updated, { source: 'admin' });
 
   if (settings.notify_email) {
-    await notifyCancellation(existing, settings.notify_email);
+    await notifyCancellation(existing, settings.notify_email).catch(() => {});
   }
   res.json(updated);
+});
+
+router.post('/appointments/:id/resend-confirmation', authMiddleware, async (req, res) => {
+  const db = getDb();
+  const id = Number(req.params.id);
+  const existing = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Consulta não encontrada' });
+
+  const notifications = await sendClientConfirmations(existing, { force: true });
+  const { actor, actorId } = actorFrom(req);
+  logAppointmentAudit(db, {
+    appointmentId: id,
+    action: 'confirmation_resent',
+    actor,
+    actorId,
+    details: { notifications },
+  });
+
+  res.json({ ok: true, notifications });
+});
+
+router.post('/appointments/:id/send-reminder', authMiddleware, async (req, res) => {
+  const db = getDb();
+  const id = Number(req.params.id);
+  const existing = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Consulta não encontrada' });
+  if (existing.status === 'cancelled' || existing.status === 'completed') {
+    return res.status(400).json({ error: 'Não é possível enviar lembrete para esta consulta' });
+  }
+
+  const notifications = await sendClientReminder(existing);
+  const { actor, actorId } = actorFrom(req);
+  logAppointmentAudit(db, {
+    appointmentId: id,
+    action: 'reminder_sent',
+    actor,
+    actorId,
+    details: { notifications },
+  });
+
+  res.json({ ok: true, notifications });
 });
 
 router.delete('/appointments/:id', authMiddleware, async (req, res) => {
@@ -223,7 +540,22 @@ router.delete('/appointments/:id', authMiddleware, async (req, res) => {
   const existing = db.prepare('SELECT * FROM appointments WHERE id = ?').get(id);
   if (!existing) return res.status(404).json({ error: 'Consulta não encontrada' });
 
+  const { actor, actorId } = actorFrom(req);
+  logAppointmentAudit(db, {
+    appointmentId: id,
+    action: 'deleted',
+    actor,
+    actorId,
+    details: {
+      date: existing.date,
+      start_time: existing.start_time,
+      patient_name: existing.patient_name,
+      reference_code: existing.reference_code,
+    },
+  });
+
   db.prepare('DELETE FROM appointments WHERE id = ?').run(id);
+  appointmentChanged('deleted', existing, { source: 'admin' });
   res.json({ ok: true, deleted: true });
 });
 
@@ -247,11 +579,13 @@ router.put('/settings', authMiddleware, (req, res) => {
 
 router.post('/schedule/lock', authMiddleware, (_req, res) => {
   getDb().prepare('UPDATE settings SET schedule_locked = 1, updated_at = ? WHERE id = 1').run(nowIso());
+  appointmentChanged('schedule_locked', null, { locked: true });
   res.json({ schedule_locked: true });
 });
 
 router.post('/schedule/unlock', authMiddleware, (_req, res) => {
   getDb().prepare('UPDATE settings SET schedule_locked = 0, updated_at = ? WHERE id = 1').run(nowIso());
+  appointmentChanged('schedule_unlocked', null, { locked: false });
   res.json({ schedule_locked: false });
 });
 
@@ -285,7 +619,7 @@ router.get('/breaks', authMiddleware, (_req, res) => {
 
 router.post('/breaks', authMiddleware, (req, res) => {
   const { day_of_week, start_time, end_time } = req.body;
-  const r = getDb().prepare(`
+  getDb().prepare(`
     INSERT INTO breaks (day_of_week, start_time, end_time) VALUES (?, ?, ?)
   `).run(day_of_week ?? null, start_time, end_time);
   const db = getDb();
@@ -305,7 +639,7 @@ router.post('/unavailable-dates', authMiddleware, (req, res) => {
   const { date, reason } = req.body;
   try {
     const db = getDb();
-    const r = db.prepare('INSERT INTO unavailable_dates (date, reason) VALUES (?, ?)').run(date, reason || null);
+    db.prepare('INSERT INTO unavailable_dates (date, reason) VALUES (?, ?)').run(date, reason || null);
     res.status(201).json(db.prepare('SELECT * FROM unavailable_dates WHERE id = ?').get(lastInsertId(db)));
   } catch {
     res.status(409).json({ error: 'Data já bloqueada' });

@@ -99,6 +99,7 @@ function initSchema(database) {
 
     CREATE TABLE IF NOT EXISTS appointments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      reference_code TEXT UNIQUE,
       patient_name TEXT NOT NULL,
       patient_email TEXT,
       patient_phone TEXT NOT NULL,
@@ -108,9 +109,14 @@ function initSchema(database) {
       start_time TEXT NOT NULL,
       end_time TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'pending'
-        CHECK (status IN ('pending', 'confirmed', 'cancelled', 'rescheduled')),
+        CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed', 'rescheduled')),
       attendance_type TEXT NOT NULL DEFAULT 'presencial'
         CHECK (attendance_type IN ('presencial', 'online')),
+      meeting_link TEXT,
+      notes TEXT,
+      booking_ip TEXT,
+      confirmation_email_sent_at TEXT,
+      confirmation_mobile_sent_at TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -128,10 +134,6 @@ function initSchema(database) {
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
-
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_appointments_active_slot
-      ON appointments(date, start_time)
-      WHERE status IN ('pending', 'confirmed');
   `);
 
   const settings = database.prepare('SELECT id FROM settings WHERE id = 1').get();
@@ -168,18 +170,191 @@ function initSchema(database) {
   }
 
   migrateSchema(database);
+  ensureAppointmentIndexes(database);
+}
+
+function tableHasColumn(database, table, column) {
+  const cols = database.prepare(`PRAGMA table_info(${table})`).all();
+  return cols.some((c) => c.name === column);
 }
 
 function migrateSchema(database) {
-  const cols = database.prepare('PRAGMA table_info(appointments)').all();
-  if (!cols.some((c) => c.name === 'attendance_type')) {
+  if (!tableHasColumn(database, 'appointments', 'attendance_type')) {
     database.exec(`
       ALTER TABLE appointments ADD COLUMN attendance_type TEXT NOT NULL DEFAULT 'presencial'
-        CHECK (attendance_type IN ('presencial', 'online'))
     `);
+  }
+  if (!tableHasColumn(database, 'appointments', 'meeting_link')) {
+    database.exec('ALTER TABLE appointments ADD COLUMN meeting_link TEXT');
+  }
+  if (!tableHasColumn(database, 'appointments', 'confirmation_email_sent_at')) {
+    database.exec('ALTER TABLE appointments ADD COLUMN confirmation_email_sent_at TEXT');
+  }
+  if (!tableHasColumn(database, 'appointments', 'confirmation_mobile_sent_at')) {
+    database.exec('ALTER TABLE appointments ADD COLUMN confirmation_mobile_sent_at TEXT');
+  }
+  if (!tableHasColumn(database, 'appointments', 'notes')) {
+    database.exec('ALTER TABLE appointments ADD COLUMN notes TEXT');
+  }
+  if (!tableHasColumn(database, 'appointments', 'booking_ip')) {
+    database.exec('ALTER TABLE appointments ADD COLUMN booking_ip TEXT');
+  }
+  if (!tableHasColumn(database, 'appointments', 'reference_code')) {
+    database.exec('ALTER TABLE appointments ADD COLUMN reference_code TEXT');
+  }
+
+  migrateAppointmentsStatusConstraint(database);
+  backfillReferenceCodes(database);
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS appointment_audit (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      appointment_id INTEGER NOT NULL,
+      action TEXT NOT NULL,
+      actor TEXT,
+      actor_id INTEGER,
+      details TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+}
+
+function ensureAppointmentIndexes(database) {
+  database.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_appointments_active_slot
+      ON appointments(date, start_time)
+      WHERE status IN ('pending', 'confirmed');
+
+    CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(date);
+    CREATE INDEX IF NOT EXISTS idx_appointments_time ON appointments(start_time);
+    CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status);
+    CREATE INDEX IF NOT EXISTS idx_appointments_patient_name ON appointments(patient_name);
+    CREATE INDEX IF NOT EXISTS idx_appointments_patient_email ON appointments(patient_email);
+    CREATE INDEX IF NOT EXISTS idx_appointments_patient_phone ON appointments(patient_phone);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_appointments_reference_unique
+      ON appointments(reference_code) WHERE reference_code IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_audit_appointment
+      ON appointment_audit(appointment_id, created_at);
+  `);
+}
+
+/**
+ * SQLite cannot ALTER CHECK constraints — rebuild table when 'completed' is missing.
+ */
+function migrateAppointmentsStatusConstraint(database) {
+  const row = database
+    .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='appointments'")
+    .get();
+  if (!row?.sql) return;
+  if (row.sql.includes("'completed'")) return;
+
+  const has = (col) => tableHasColumn(database, 'appointments', col);
+  const refSel = has('reference_code') ? 'reference_code' : 'NULL';
+  const notesSel = has('notes') ? 'notes' : 'NULL';
+  const ipSel = has('booking_ip') ? 'booking_ip' : 'NULL';
+  const attendSel = has('attendance_type')
+    ? "COALESCE(attendance_type, 'presencial')"
+    : "'presencial'";
+  const meetSel = has('meeting_link') ? 'meeting_link' : 'NULL';
+  const emailSel = has('confirmation_email_sent_at') ? 'confirmation_email_sent_at' : 'NULL';
+  const mobileSel = has('confirmation_mobile_sent_at') ? 'confirmation_mobile_sent_at' : 'NULL';
+
+  database.exec('PRAGMA foreign_keys = OFF');
+  database.exec(`
+    CREATE TABLE appointments_new (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      reference_code TEXT UNIQUE,
+      patient_name TEXT NOT NULL,
+      patient_email TEXT,
+      patient_phone TEXT NOT NULL,
+      service_id INTEGER REFERENCES services(id),
+      service_name TEXT,
+      date TEXT NOT NULL,
+      start_time TEXT NOT NULL,
+      end_time TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed', 'rescheduled')),
+      attendance_type TEXT NOT NULL DEFAULT 'presencial'
+        CHECK (attendance_type IN ('presencial', 'online')),
+      meeting_link TEXT,
+      notes TEXT,
+      booking_ip TEXT,
+      confirmation_email_sent_at TEXT,
+      confirmation_mobile_sent_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    INSERT INTO appointments_new (
+      id, reference_code, patient_name, patient_email, patient_phone,
+      service_id, service_name, date, start_time, end_time, status,
+      attendance_type, meeting_link, notes, booking_ip,
+      confirmation_email_sent_at, confirmation_mobile_sent_at, created_at, updated_at
+    )
+    SELECT
+      id,
+      ${refSel},
+      patient_name, patient_email, patient_phone,
+      service_id, service_name, date, start_time, end_time, status,
+      ${attendSel},
+      ${meetSel},
+      ${notesSel},
+      ${ipSel},
+      ${emailSel}, ${mobileSel}, created_at, updated_at
+    FROM appointments;
+
+    DROP TABLE appointments;
+    ALTER TABLE appointments_new RENAME TO appointments;
+  `);
+  database.exec('PRAGMA foreign_keys = ON');
+}
+
+function backfillReferenceCodes(database) {
+  const missing = database
+    .prepare('SELECT id, date FROM appointments WHERE reference_code IS NULL OR reference_code = \'\'')
+    .all();
+  if (!missing.length) return;
+
+  const update = database.prepare('UPDATE appointments SET reference_code = ? WHERE id = ?');
+  for (const row of missing) {
+    update.run(buildReferenceCode(row.id, row.date), row.id);
   }
 }
 
 export function nowIso() {
   return new Date().toISOString();
+}
+
+/** Unique public reference, e.g. RB-20260724-0042 */
+export function buildReferenceCode(id, dateStr) {
+  const datePart = (dateStr || nowIso().slice(0, 10)).replace(/-/g, '');
+  const seq = String(id).padStart(4, '0');
+  return `RB-${datePart}-${seq}`;
+}
+
+export function logAppointmentAudit(database, {
+  appointmentId,
+  action,
+  actor = null,
+  actorId = null,
+  details = null,
+}) {
+  database.prepare(`
+    INSERT INTO appointment_audit (appointment_id, action, actor, actor_id, details, created_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(
+    appointmentId,
+    action,
+    actor,
+    actorId,
+    details ? JSON.stringify(details) : null,
+    nowIso()
+  );
+}
+
+export function ensureAppointmentReference(database, appointment) {
+  if (appointment.reference_code) return appointment;
+  const code = buildReferenceCode(appointment.id, appointment.date);
+  database.prepare('UPDATE appointments SET reference_code = ? WHERE id = ?').run(code, appointment.id);
+  return database.prepare('SELECT * FROM appointments WHERE id = ?').get(appointment.id);
 }

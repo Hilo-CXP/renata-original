@@ -9,9 +9,12 @@
     serviceId: null,
     date: '',
     slot: null,
+    attendanceType: null,
+    patient: null,
   };
 
   const DAY_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const OFFICE_ADDRESS = 'R. Dr. Aureliano Barreiros, 641 — Itaquera, São Paulo — SP, 08210-450';
 
   async function api(path, options = {}) {
     const res = await fetch(`/api/public${path}`, {
@@ -19,7 +22,13 @@
       ...options,
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Erro na requisição');
+    if (!res.ok) {
+      const err = new Error(data.error || 'Erro na requisição');
+      err.code = data.code;
+      err.suggestions = data.suggestions || [];
+      err.payload = data;
+      throw err;
+    }
     return data;
   }
 
@@ -28,9 +37,32 @@
     return `${d}/${m}/${y}`;
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function minDate() {
     const d = new Date();
     return d.toISOString().slice(0, 10);
+  }
+
+  function attendanceLabel(type) {
+    return type === 'online' ? 'Online' : 'Presencial';
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(String(email || '').trim());
+  }
+
+  function isValidPhone(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+    if (digits.startsWith('55') && digits.length >= 12 && digits.length <= 13) return true;
+    return digits.length === 10 || digits.length === 11;
   }
 
   function renderSteps() {
@@ -78,7 +110,7 @@
           <label class="booking__label" for="wl-day">Dia preferido</label>
           <select id="wl-day">
             <option value="">Qualquer dia</option>
-            ${DAY_NAMES.map((d, i) => `<option value="${d}">${d}-feira</option>`).join('')}
+            ${DAY_NAMES.map((d) => `<option value="${d}">${d}-feira</option>`).join('')}
           </select>
         </div>
         <div class="booking__field">
@@ -241,25 +273,50 @@
 
   function renderStep4() {
     const service = state.services.find((s) => s.id === state.serviceId);
+    const patient = state.patient || {};
     panel.innerHTML = `
       ${renderSteps()}
       <div class="booking__summary">
         <strong>${service?.name || 'Consulta'}</strong><br>
         ${formatDateBR(state.date)} às ${state.slot}
       </div>
-      <form id="patientForm">
+      <form id="patientForm" novalidate>
+        <fieldset class="booking__fieldset">
+          <legend class="booking__label">Tipo de atendimento *</legend>
+          <div class="booking__attendance" role="radiogroup" aria-label="Tipo de atendimento">
+            <label class="booking__attendance-option">
+              <input type="radio" name="attendance_type" value="presencial" ${state.attendanceType === 'presencial' ? 'checked' : ''} required>
+              <span>
+                <strong>Presencial</strong>
+                <small>No consultório em Itaquera</small>
+              </span>
+            </label>
+            <label class="booking__attendance-option">
+              <input type="radio" name="attendance_type" value="online" ${state.attendanceType === 'online' ? 'checked' : ''}>
+              <span>
+                <strong>Online</strong>
+                <small>Por videochamada</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
         <div class="booking__field">
           <label class="booking__label" for="p-name">Nome completo *</label>
-          <input type="text" id="p-name" required placeholder="Seu nome">
+          <input type="text" id="p-name" required placeholder="Seu nome" value="${escapeHtml(patient.name || '')}">
         </div>
         <div class="booking__field">
           <label class="booking__label" for="p-phone">Telefone / WhatsApp *</label>
-          <input type="tel" id="p-phone" required placeholder="(11) 99999-9999">
+          <input type="tel" id="p-phone" required placeholder="(11) 99999-9999" value="${escapeHtml(patient.phone || '')}">
         </div>
         <div class="booking__field">
-          <label class="booking__label" for="p-email">E-mail</label>
-          <input type="email" id="p-email" placeholder="seu@email.com">
+          <label class="booking__label" for="p-email">E-mail *</label>
+          <input type="email" id="p-email" required placeholder="seu@email.com" value="${escapeHtml(patient.email || '')}">
         </div>
+        <div class="booking__field">
+          <label class="booking__label" for="p-notes">Observações (opcional)</label>
+          <textarea id="p-notes" rows="2" placeholder="Alguma informação útil para o consultório">${escapeHtml(patient.notes || '')}</textarea>
+        </div>
+        <p class="booking__message" id="patientFeedback" role="status"></p>
         <div class="booking__actions">
           <button type="button" class="btn btn--outline" id="btnBack4">Voltar</button>
           <button type="submit" class="btn btn--primary">Revisar agendamento</button>
@@ -270,11 +327,38 @@
     document.getElementById('btnBack4').addEventListener('click', () => { state.step = 3; render(); });
     document.getElementById('patientForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      state.patient = {
-        name: document.getElementById('p-name').value,
-        phone: document.getElementById('p-phone').value,
-        email: document.getElementById('p-email').value,
-      };
+      const fb = document.getElementById('patientFeedback');
+      fb.className = 'booking__message';
+
+      const attendance = document.querySelector('input[name="attendance_type"]:checked')?.value;
+      const name = document.getElementById('p-name').value.trim();
+      const phone = document.getElementById('p-phone').value.trim();
+      const email = document.getElementById('p-email').value.trim();
+      const notes = document.getElementById('p-notes').value.trim();
+
+      if (!attendance) {
+        fb.textContent = 'Selecione o tipo de atendimento.';
+        fb.classList.add('error');
+        return;
+      }
+      if (!name) {
+        fb.textContent = 'Informe seu nome completo.';
+        fb.classList.add('error');
+        return;
+      }
+      if (!isValidPhone(phone)) {
+        fb.textContent = 'Informe um telefone/WhatsApp válido com DDD.';
+        fb.classList.add('error');
+        return;
+      }
+      if (!isValidEmail(email)) {
+        fb.textContent = 'Informe um e-mail válido.';
+        fb.classList.add('error');
+        return;
+      }
+
+      state.attendanceType = attendance;
+      state.patient = { name, phone, email, notes };
       state.step = 5;
       render();
     });
@@ -282,26 +366,129 @@
 
   function renderStep5() {
     const service = state.services.find((s) => s.id === state.serviceId);
+    const locationLine = state.attendanceType === 'online'
+      ? 'Local: Online (link enviado na confirmação)'
+      : `Local: ${OFFICE_ADDRESS}`;
+
     panel.innerHTML = `
       ${renderSteps()}
       <div class="booking__summary">
         <strong>Confirme seus dados</strong><br><br>
-        Serviço: ${service?.name}<br>
+        Serviço: ${escapeHtml(service?.name || '')}<br>
+        Tipo: ${attendanceLabel(state.attendanceType)}<br>
         Data: ${formatDateBR(state.date)}<br>
-        Horário: ${state.slot}<br>
-        Nome: ${state.patient.name}<br>
-        Telefone: ${state.patient.phone}<br>
-        ${state.patient.email ? `E-mail: ${state.patient.email}<br>` : ''}
+        Horário: ${escapeHtml(state.slot)}<br>
+        Nome: ${escapeHtml(state.patient.name)}<br>
+        Telefone: ${escapeHtml(state.patient.phone)}<br>
+        E-mail: ${escapeHtml(state.patient.email)}<br>
+        ${escapeHtml(locationLine)}
       </div>
       <div class="booking__actions">
         <button type="button" class="btn btn--outline" id="btnBack5">Voltar</button>
         <button type="button" class="btn btn--primary" id="btnConfirm">Confirmar agendamento</button>
       </div>
-      <p class="booking__message" id="bookFeedback" role="status"></p>
+      <p class="booking__message" id="bookFeedback" role="status" aria-live="polite"></p>
     `;
 
     document.getElementById('btnBack5').addEventListener('click', () => { state.step = 4; render(); });
     document.getElementById('btnConfirm').addEventListener('click', confirmBooking);
+  }
+
+  function renderSuccess(data) {
+    const service = state.services.find((s) => s.id === state.serviceId);
+    const n = data.notifications || {};
+    const emailSent = Boolean(n.email?.sent);
+    const mobileSent = Boolean(n.mobile?.sent);
+    const partial = Boolean(n.partialFailure);
+    const reference = data.appointment?.reference_code || '';
+
+    let notifyHtml = '';
+    if (!partial && (emailSent || mobileSent)) {
+      notifyHtml = `
+        <ul class="booking__success-channels">
+          <li>${emailSent ? '✓' : '–'} Confirmação por e-mail ${emailSent ? 'enviada' : 'não enviada'}</li>
+          <li>${mobileSent ? '✓' : '–'} Confirmação por celular ${mobileSent ? 'enviada' : 'não enviada'}${n.mobile?.channel && mobileSent ? ` (${n.mobile.channel === 'whatsapp' ? 'WhatsApp' : 'SMS'})` : ''}</li>
+        </ul>
+      `;
+    } else if (partial) {
+      notifyHtml = `
+        <p class="booking__success-note">
+          Houve um problema ao enviar a confirmação automática.
+          Sua consulta <strong>está registrada</strong>. Se precisar, fale conosco pelo WhatsApp
+          <a href="https://wa.me/5511992789380" target="_blank" rel="noopener noreferrer">(11) 99278-9380</a>.
+        </p>
+        <ul class="booking__success-channels">
+          <li>${emailSent ? '✓ E-mail enviado' : '✗ E-mail não enviado'}</li>
+          <li>${mobileSent ? '✓ Celular enviado' : '✗ Celular não enviado'}</li>
+        </ul>
+      `;
+    } else {
+      notifyHtml = `
+        <ul class="booking__success-channels">
+          <li>– Confirmação por e-mail não enviada automaticamente</li>
+          <li>– Confirmação por celular não enviada automaticamente</li>
+        </ul>
+      `;
+    }
+
+    panel.innerHTML = `
+      <div class="booking__success" role="status" aria-live="polite">
+        <div class="booking__success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12.5l2.5 2.5L16 9"/>
+          </svg>
+        </div>
+        <h3>Agendamento registrado!</h3>
+        <p>${escapeHtml(data.message)}</p>
+        ${reference ? `<div class="booking__reference" title="Guarde este código">Ref. ${escapeHtml(reference)}</div>` : ''}
+        <div class="booking__summary">
+          <strong>${escapeHtml(service?.name || 'Consulta')}</strong><br>
+          ${attendanceLabel(state.attendanceType)} · ${formatDateBR(state.date)} às ${escapeHtml(state.slot)}<br>
+          ${escapeHtml(state.patient.name)}
+        </div>
+        ${notifyHtml}
+        <a href="#contato" class="btn btn--outline btn--full">Falar com o consultório</a>
+      </div>
+    `;
+  }
+
+  function renderConflict(err) {
+    const suggestions = err.suggestions || [];
+    panel.innerHTML = `
+      ${renderSteps()}
+      <div class="booking__message error" role="alert">${escapeHtml(err.message)}</div>
+      ${suggestions.length ? `
+        <div class="booking__suggestions">
+          <h4>Próximos horários disponíveis</h4>
+          <div class="booking__suggestions-list">
+            ${suggestions.map((s) => `
+              <button type="button" class="booking__suggestion"
+                data-date="${escapeHtml(s.date)}" data-time="${escapeHtml(s.start_time)}">
+                ${formatDateBR(s.date)} · ${escapeHtml(s.start_time)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+      <div class="booking__actions">
+        <button type="button" class="btn btn--outline" id="btnBackConflict">Escolher outro horário</button>
+      </div>
+    `;
+
+    document.getElementById('btnBackConflict').addEventListener('click', () => {
+      state.step = 3;
+      render();
+    });
+
+    panel.querySelectorAll('.booking__suggestion').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.date = btn.dataset.date;
+        state.slot = btn.dataset.time;
+        state.step = 5;
+        render();
+      });
+    });
   }
 
   async function confirmBooking() {
@@ -309,23 +496,30 @@
     const btn = document.getElementById('btnConfirm');
     btn.disabled = true;
     fb.className = 'booking__message';
+    fb.textContent = 'Registrando sua consulta...';
 
     try {
+      const payload = {
+        service_id: state.serviceId,
+        date: state.date,
+        start_time: state.slot,
+        patient_name: state.patient.name,
+        patient_phone: state.patient.phone,
+        patient_email: state.patient.email,
+        attendance_type: state.attendanceType,
+      };
+      if (state.patient.notes) payload.notes = state.patient.notes;
+
       const data = await api('/appointments', {
         method: 'POST',
-        body: JSON.stringify({
-          service_id: state.serviceId,
-          date: state.date,
-          start_time: state.slot,
-          patient_name: state.patient.name,
-          patient_phone: state.patient.phone,
-          patient_email: state.patient.email,
-        }),
+        body: JSON.stringify(payload),
       });
-      fb.textContent = data.message;
-      fb.classList.add('success');
-      panel.querySelector('.booking__actions')?.remove();
+      renderSuccess(data);
     } catch (err) {
+      if (err.code === 'SLOT_TAKEN' || err.code === 'SLOT_UNAVAILABLE' || (err.suggestions && err.suggestions.length)) {
+        renderConflict(err);
+        return;
+      }
       fb.textContent = err.message;
       fb.classList.add('error');
       btn.disabled = false;

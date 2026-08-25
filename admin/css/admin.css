@@ -231,9 +231,11 @@ tr:hover td { background: rgba(243,238,249,0.5); }
   font-size: 0.75rem;
   font-weight: 600;
 }
-.status-pending { background: #fff3e0; color: var(--warning); }
-.status-confirmed { background: #e8f5e9; color: var(--success); }
-.status-cancelled { background: #fce4ec; color: var(--danger); }
+.status-pending { background: #fff8e1; color: #f9a825; }
+.status-confirmed { background: #e8f5e9; color: #2e7d32; }
+.status-completed { background: #e3f2fd; color: #1565c0; }
+.status-cancelled { background: #fce4ec; color: #c62828; }
+.status-rescheduled { background: #f3e5f5; color: #7b1fa2; }
 .status-waiting { background: var(--lavender-pale); color: var(--purple); }
 .status-contacted { background: #e3f2fd; color: #1565c0; }
 .status-scheduled { background: #e8f5e9; color: var(--success); }
@@ -292,7 +294,43 @@ tr:hover td { background: rgba(243,238,249,0.5); }
   margin-bottom: 6px;
   cursor: pointer;
 }
+.appt-chip.status-pending { border-left-color: #f9a825; background: #fffde7; }
+.appt-chip.status-confirmed { border-left-color: #2e7d32; background: #e8f5e9; }
+.appt-chip.status-completed { border-left-color: #1565c0; background: #e3f2fd; }
+.appt-chip.status-cancelled {
+  opacity: 0.65;
+  border-left-color: #c62828;
+  background: #fce4ec;
+  text-decoration: line-through;
+  text-decoration-color: rgba(198, 40, 40, 0.4);
+}
+.appt-chip.status-rescheduled { border-left-color: #7b1fa2; background: #f3e5f5; }
 .appt-chip.cancelled { opacity: 0.65; border-color: var(--danger); text-decoration: line-through; text-decoration-color: rgba(198, 40, 40, 0.4); }
+
+.sync-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9e9e9e;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.sync-dot.live { background: #43a047; box-shadow: 0 0 0 3px rgba(67,160,71,0.25); }
+.sync-dot.reconnecting { background: #f9a825; }
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.detail-meta {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 12px;
+}
 
 .row-cancelled td { opacity: 0.75; }
 .row-cancelled td:nth-child(3) { text-decoration: line-through; text-decoration-color: rgba(198, 40, 40, 0.35); }

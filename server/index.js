@@ -1,14 +1,14 @@
+import './loadEnv.js';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import publicRoutes from './routes/public.js';
 import adminRoutes from './routes/admin.js';
 import { verifyToken } from './auth.js';
-
-dotenv.config();
+import { isEmailConfigured } from './services/emailService.js';
+import { isWhatsAppConfigured, isSmsConfigured } from './services/messagingService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
@@ -78,7 +78,9 @@ app.listen(PORT, () => {
   console.log('  Site:   http://localhost:' + PORT);
   console.log('  Admin:  http://localhost:' + PORT + '/admin/login');
   console.log('');
-  console.log('  Usuario padrao: admin');
-  console.log('  Senha padrao:   AltereSenhaForte123!');
+  console.log('  Notificacoes:');
+  console.log('    E-mail SMTP:  ' + (isEmailConfigured() ? 'OK' : 'NAO CONFIGURADO (SMTP_HOST/USER/PASS)'));
+  console.log('    WhatsApp:     ' + (isWhatsAppConfigured() ? 'OK' : 'NAO CONFIGURADO (WHATSAPP_WEBHOOK_URL)'));
+  console.log('    SMS fallback: ' + (isSmsConfigured() ? 'OK' : 'NAO CONFIGURADO'));
   console.log('');
 });

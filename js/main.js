@@ -51,4 +51,53 @@ document.addEventListener('DOMContentLoaded', () => {
       formFeedback.className = 'form-feedback';
     }, 5000);
   });
+
+  /* Google reviews carousel */
+  const carousel = document.querySelector('[data-reviews-carousel]');
+  if (carousel) {
+    const track = carousel.querySelector('[data-reviews-track]');
+    const prevBtn = carousel.querySelector('[data-reviews-prev]');
+    const nextBtn = carousel.querySelector('[data-reviews-next]');
+    const cards = Array.from(track.children);
+    let index = 0;
+
+    const getPerView = () => {
+      if (window.innerWidth <= 768) return 1;
+      if (window.innerWidth <= 1024) return 2;
+      return 3;
+    };
+
+    const update = () => {
+      const perView = getPerView();
+      const maxIndex = Math.max(0, cards.length - perView);
+      if (index > maxIndex) index = maxIndex;
+
+      const cardWidth = cards[0].getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(track).gap) || 0;
+      track.style.transform = `translateX(-${index * (cardWidth + gap)}px)`;
+
+      prevBtn.disabled = index <= 0;
+      nextBtn.disabled = index >= maxIndex;
+    };
+
+    prevBtn.addEventListener('click', () => {
+      index = Math.max(0, index - 1);
+      update();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      const perView = getPerView();
+      const maxIndex = Math.max(0, cards.length - perView);
+      index = Math.min(maxIndex, index + 1);
+      update();
+    });
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(update, 120);
+    });
+
+    update();
+  }
 });

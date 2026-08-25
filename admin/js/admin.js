@@ -14,6 +14,9 @@
     appointments: [],
     waitingList: [],
     services: [],
+    syncConnected: false,
+    syncTimer: null,
+    eventSource: null,
   };
 
   const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -31,7 +34,12 @@
       throw new Error('Sessão expirada');
     }
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Erro');
+    if (!res.ok) {
+      const err = new Error(data.error || 'Erro');
+      err.code = data.code;
+      err.suggestions = data.suggestions;
+      throw err;
+    }
     return data;
   }
 
@@ -84,12 +92,29 @@
   }
 
   function apptChipClass(appt) {
-    return appt.status === 'cancelled' ? 'appt-chip cancelled' : 'appt-chip';
+    return `appt-chip status-${appt.status || 'pending'}`;
   }
 
   function statusLabel(s) {
-    return { pending: 'Pendente', confirmed: 'Confirmada', cancelled: 'Cancelada', rescheduled: 'Reagendada',
-      waiting: 'Aguardando', contacted: 'Contactado', scheduled: 'Agendado' }[s] || s;
+    return {
+      pending: 'Pendente',
+      confirmed: 'Confirmada',
+      completed: 'Concluída',
+      cancelled: 'Cancelada',
+      rescheduled: 'Reagendada',
+      waiting: 'Aguardando',
+      contacted: 'Contactado',
+      scheduled: 'Agendado',
+    }[s] || s;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function attendanceLabel(type) {
@@ -99,14 +124,15 @@
   function apptForm(appt = {}) {
     const attendance = appt.attendance_type || 'presencial';
     const svcOpts = state.services.map((s) =>
-      `<option value="${s.id}" ${appt.service_id === s.id ? 'selected' : ''}>${s.name}</option>`
+      `<option value="${s.id}" ${appt.service_id === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`
     ).join('');
+    const statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
     return `
       <h3>${appt.id ? 'Editar consulta' : 'Nova consulta'}</h3>
       <form id="apptForm">
-        <div class="field"><label>Nome *</label><input name="patient_name" value="${appt.patient_name || ''}" required></div>
-        <div class="field"><label>Telefone *</label><input name="patient_phone" value="${appt.patient_phone || ''}" required></div>
-        <div class="field"><label>E-mail</label><input name="patient_email" type="email" value="${appt.patient_email || ''}"></div>
+        <div class="field"><label>Nome *</label><input name="patient_name" value="${escapeHtml(appt.patient_name || '')}" required></div>
+        <div class="field"><label>Telefone *</label><input name="patient_phone" value="${escapeHtml(appt.patient_phone || '')}" required></div>
+        <div class="field"><label>E-mail</label><input name="patient_email" type="email" value="${escapeHtml(appt.patient_email || '')}"></div>
         <div class="field"><label>Serviço</label><select name="service_id"><option value="">—</option>${svcOpts}</select></div>
         <div class="field">
           <label>Tipo de atendimento *</label>
@@ -115,13 +141,15 @@
             <option value="online" ${attendance === 'online' ? 'selected' : ''}>Online</option>
           </select>
         </div>
+        <div class="field"><label>Link da reunião (online)</label><input name="meeting_link" type="url" placeholder="https://..." value="${escapeHtml(appt.meeting_link || '')}"></div>
         <div class="field"><label>Data *</label><input name="date" type="date" value="${appt.date || state.selectedDate}" required></div>
         <div class="field"><label>Horário *</label><input name="start_time" type="time" value="${appt.start_time || ''}" required></div>
         <div class="field"><label>Status</label>
           <select name="status">
-            ${['pending','confirmed','cancelled'].map((s) => `<option value="${s}" ${appt.status === s ? 'selected' : ''}>${statusLabel(s)}</option>`).join('')}
+            ${statuses.map((s) => `<option value="${s}" ${appt.status === s ? 'selected' : ''}>${statusLabel(s)}</option>`).join('')}
           </select>
         </div>
+        <div class="field"><label>Observações</label><textarea name="notes" rows="3">${escapeHtml(appt.notes || '')}</textarea></div>
         <button type="submit" class="btn btn--primary btn--full">Salvar</button>
       </form>
     `;
@@ -134,13 +162,20 @@
     body.attendance_type = fd.get('attendance_type') || 'presencial';
     body.service_id = parseServiceId(body.service_id);
     if (body.service_id === null) delete body.service_id;
+    body.notes = (fd.get('notes') || '').trim() || null;
     try {
       if (id) await api(`/appointments/${id}`, { method: 'PUT', body: JSON.stringify(body) });
       else await api('/appointments', { method: 'POST', body: JSON.stringify(body) });
       closeModal();
       await render();
     } catch (err) {
-      alert(err.message);
+      let msg = err.message;
+      if (err.suggestions?.length) {
+        msg += '\n\nSugestões:\n' + err.suggestions
+          .map((s) => `${fmtBR(s.date)} às ${s.start_time}`)
+          .join('\n');
+      }
+      alert(msg);
     }
   }
 
@@ -158,12 +193,8 @@
   /* ---- Calendar views ---- */
 
   async function renderCalendar() {
-    const d = state.currentDate;
-    const y = d.getFullYear();
-    const m = d.getMonth();
-    const from = fmtDate(new Date(y, m, 1));
-    const to = fmtDate(new Date(y, m + 1, 0));
-    await loadAppointments(from, to);
+    const range = calendarRange();
+    await loadAppointments(range.from, range.to);
 
     content.innerHTML = `
       <div class="toolbar">
@@ -172,6 +203,7 @@
           <button class="view-tab ${state.calView === 'week' ? 'active' : ''}" data-cal="week">Semana</button>
           <button class="view-tab ${state.calView === 'month' ? 'active' : ''}" data-cal="month">Mês</button>
         </div>
+        <span title="Sincronização em tempo real"><span class="sync-dot ${state.syncConnected ? 'live' : 'reconnecting'}"></span>${state.syncConnected ? 'Ao vivo' : 'Reconectando…'}</span>
         <button class="btn btn--primary btn--sm" id="btnNewAppt">+ Nova consulta</button>
       </div>
       <div class="card" id="calContainer"></div>
@@ -183,11 +215,36 @@
     document.getElementById('btnNewAppt').addEventListener('click', () => showApptModal());
 
     const container = document.getElementById('calContainer');
+    const d = state.currentDate;
+    const y = d.getFullYear();
+    const m = d.getMonth();
     if (state.calView === 'month') container.innerHTML = renderMonth(y, m);
     else if (state.calView === 'week') container.innerHTML = renderWeek();
     else container.innerHTML = renderDay();
 
     bindCalEvents(container);
+  }
+
+  function calendarRange() {
+    if (state.calView === 'week') {
+      const d = new Date(state.currentDate);
+      const dow = d.getDay();
+      const weekStart = new Date(d);
+      weekStart.setDate(d.getDate() - dow);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      return { from: fmtDate(weekStart), to: fmtDate(weekEnd) };
+    }
+    if (state.calView === 'day') {
+      return { from: state.selectedDate, to: state.selectedDate };
+    }
+    const d = state.currentDate;
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    return {
+      from: fmtDate(new Date(y, m, 1)),
+      to: fmtDate(new Date(y, m + 1, 0)),
+    };
   }
 
   function renderMonth(y, m) {
@@ -247,8 +304,8 @@
           <h4>${DAYS[i]} ${day.getDate()}/${day.getMonth() + 1}</h4>
           ${appts.map((a) => `
             <div class="${apptChipClass(a)}" data-appt="${a.id}">
-              <strong>${a.start_time}</strong> ${a.patient_name}
-              ${a.status === 'cancelled' ? '<em style="font-size:0.65rem">(cancelada)</em> ' : ''}
+              <strong>${a.start_time}</strong> ${escapeHtml(a.patient_name)}
+              <span class="status status-${a.status}">${statusLabel(a.status)}</span>
               <span class="attendance-tag attendance-tag--${a.attendance_type || 'presencial'}">${attendanceLabel(a.attendance_type)}</span>
             </div>
           `).join('') || '<span style="font-size:0.75rem;color:#999">—</span>'}
@@ -273,9 +330,9 @@
       <div class="cal-day-view">
         ${appts.length ? appts.map((a) => `
           <div class="card ${apptChipClass(a)}" data-appt="${a.id}" style="cursor:pointer">
-            <strong>${a.start_time} – ${a.end_time}</strong> · ${a.patient_name}
+            <strong>${a.start_time} – ${a.end_time}</strong> · ${escapeHtml(a.patient_name)}
             <span class="attendance-tag attendance-tag--${a.attendance_type || 'presencial'}">${attendanceLabel(a.attendance_type)}</span><br>
-            <small>${a.patient_phone} ${a.service_name ? '· ' + a.service_name : ''}</small>
+            <small>${escapeHtml(a.patient_phone)} ${a.service_name ? '· ' + escapeHtml(a.service_name) : ''}</small>
             <span class="status status-${a.status}">${statusLabel(a.status)}</span>
           </div>
         `).join('') : '<div class="empty">Nenhuma consulta neste dia</div>'}
@@ -330,32 +387,124 @@
   }
 
   function showApptDetail(appt) {
+    const canAct = appt.status !== 'cancelled' && appt.status !== 'completed';
     openModal(`
-      <h3>${appt.patient_name}</h3>
-      <p><strong>Data:</strong> ${fmtBR(appt.date)} às ${appt.start_time}<br>
-      <strong>Atendimento:</strong> ${attendanceLabel(appt.attendance_type)}<br>
-      <strong>Telefone:</strong> ${appt.patient_phone}<br>
-      ${appt.patient_email ? `<strong>E-mail:</strong> ${appt.patient_email}<br>` : ''}
-      ${appt.service_name ? `<strong>Serviço:</strong> ${appt.service_name}<br>` : ''}
-      <span class="status status-${appt.status}">${statusLabel(appt.status)}</span></p>
-      <div class="actions" style="margin-top:16px">
+      <h3>${escapeHtml(appt.patient_name)}</h3>
+      <p>
+        ${appt.reference_code ? `<strong>Referência:</strong> ${escapeHtml(appt.reference_code)}<br>` : ''}
+        <strong>Data:</strong> ${fmtBR(appt.date)} às ${escapeHtml(appt.start_time)}–${escapeHtml(appt.end_time)}<br>
+        <strong>Atendimento:</strong> ${attendanceLabel(appt.attendance_type)}<br>
+        ${appt.meeting_link ? `<strong>Link:</strong> <a href="${escapeHtml(appt.meeting_link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(appt.meeting_link)}</a><br>` : ''}
+        <strong>Telefone:</strong> ${escapeHtml(appt.patient_phone)}<br>
+        ${appt.patient_email ? `<strong>E-mail:</strong> ${escapeHtml(appt.patient_email)}<br>` : ''}
+        ${appt.service_name ? `<strong>Serviço:</strong> ${escapeHtml(appt.service_name)}<br>` : ''}
+        ${appt.notes ? `<strong>Observações:</strong> ${escapeHtml(appt.notes)}<br>` : ''}
+        <span class="status status-${appt.status}">${statusLabel(appt.status)}</span>
+      </p>
+      <div class="detail-meta">
+        Criada em ${escapeHtml(appt.created_at || '—')}
+        ${appt.booking_ip ? ` · IP ${escapeHtml(appt.booking_ip)}` : ''}
+      </div>
+      <div class="detail-actions actions">
         <button class="btn btn--outline btn--sm" id="editAppt">Editar</button>
-        ${appt.status !== 'cancelled' ? `<button class="btn btn--outline btn--sm btn--warn" id="cancelAppt">Cancelar consulta</button>` : ''}
+        ${appt.status === 'pending' ? `<button class="btn btn--primary btn--sm" id="confirmAppt">Confirmar</button>` : ''}
+        ${canAct ? `<button class="btn btn--outline btn--sm" id="rescheduleAppt">Reagendar</button>` : ''}
+        ${canAct ? `<button class="btn btn--outline btn--sm" id="completeAppt">Marcar concluída</button>` : ''}
+        ${appt.status !== 'cancelled' ? `<button class="btn btn--outline btn--sm btn--warn" id="cancelAppt">Cancelar</button>` : ''}
+        <button class="btn btn--outline btn--sm" id="resendConfirm">Reenviar confirmação</button>
+        ${canAct ? `<button class="btn btn--outline btn--sm" id="sendReminder">Enviar lembrete</button>` : ''}
         <button class="btn btn--danger btn--sm" id="deleteAppt">Excluir</button>
       </div>
     `);
+
     document.getElementById('editAppt').addEventListener('click', () => { closeModal(); showApptModal(appt); });
+
+    document.getElementById('confirmAppt')?.addEventListener('click', async () => {
+      await api(`/appointments/${appt.id}/confirm`, { method: 'POST' });
+      closeModal();
+      render();
+    });
+
+    document.getElementById('completeAppt')?.addEventListener('click', async () => {
+      if (!confirm('Marcar esta consulta como concluída?')) return;
+      await api(`/appointments/${appt.id}/complete`, { method: 'POST' });
+      closeModal();
+      render();
+    });
+
+    document.getElementById('rescheduleAppt')?.addEventListener('click', () => {
+      closeModal();
+      showRescheduleModal(appt);
+    });
+
     document.getElementById('cancelAppt')?.addEventListener('click', async () => {
-      if (!confirm('Cancelar esta consulta? O registro será mantido para controle de pagamentos.')) return;
+      if (!confirm('Cancelar esta consulta? O registro será mantido para controle.')) return;
       await api(`/appointments/${appt.id}/cancel`, { method: 'POST' });
       closeModal();
       render();
     });
+
+    document.getElementById('resendConfirm')?.addEventListener('click', async () => {
+      try {
+        const result = await api(`/appointments/${appt.id}/resend-confirmation`, { method: 'POST' });
+        const emailOk = result.notifications?.email?.sent;
+        const mobileOk = result.notifications?.mobile?.sent;
+        alert(`Confirmação reenviada.\nE-mail: ${emailOk ? 'enviado' : 'falhou/não enviado'}\nCelular: ${mobileOk ? 'enviado' : 'falhou/não enviado'}`);
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    document.getElementById('sendReminder')?.addEventListener('click', async () => {
+      try {
+        const result = await api(`/appointments/${appt.id}/send-reminder`, { method: 'POST' });
+        const emailOk = result.notifications?.email?.sent;
+        const mobileOk = result.notifications?.mobile?.sent;
+        alert(`Lembrete enviado.\nE-mail: ${emailOk ? 'enviado' : 'falhou/não enviado'}\nCelular: ${mobileOk ? 'enviado' : 'falhou/não enviado'}`);
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
     document.getElementById('deleteAppt').addEventListener('click', async () => {
       if (!confirm('Excluir permanentemente esta consulta? Esta ação não pode ser desfeita.')) return;
       await api(`/appointments/${appt.id}`, { method: 'DELETE' });
       closeModal();
       render();
+    });
+  }
+
+  function showRescheduleModal(appt) {
+    openModal(`
+      <h3>Reagendar — ${escapeHtml(appt.patient_name)}</h3>
+      <form id="rescheduleForm">
+        <div class="field"><label>Nova data *</label><input name="date" type="date" value="${appt.date}" required></div>
+        <div class="field"><label>Novo horário *</label><input name="start_time" type="time" value="${appt.start_time}" required></div>
+        <button type="submit" class="btn btn--primary btn--full">Salvar reagendamento</button>
+      </form>
+    `);
+    document.getElementById('rescheduleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      try {
+        await api(`/appointments/${appt.id}/reschedule`, {
+          method: 'POST',
+          body: JSON.stringify({
+            date: fd.get('date'),
+            start_time: fd.get('start_time'),
+          }),
+        });
+        closeModal();
+        await render();
+      } catch (err) {
+        let msg = err.message;
+        if (err.suggestions?.length) {
+          msg += '\n\nSugestões:\n' + err.suggestions
+            .map((s) => `${fmtBR(s.date)} às ${s.start_time}`)
+            .join('\n');
+        }
+        alert(msg);
+      }
     });
   }
 
@@ -378,18 +527,21 @@
       </div>
       <div class="card table-wrap">
         ${rows.length ? `<table>
-          <thead><tr><th>Data</th><th>Horário</th><th>Paciente</th><th>Atendimento</th><th>Contato</th><th>Serviço</th><th>Status</th><th></th></tr></thead>
+          <thead><tr><th>Ref.</th><th>Data</th><th>Horário</th><th>Paciente</th><th>Atendimento</th><th>Contato</th><th>Serviço</th><th>Status</th><th></th></tr></thead>
           <tbody>${rows.map((a) => `
             <tr class="${a.status === 'cancelled' ? 'row-cancelled' : ''}">
+              <td><code>${escapeHtml(a.reference_code || '—')}</code></td>
               <td>${fmtBR(a.date)}</td>
               <td>${a.start_time}</td>
-              <td>${a.patient_name}</td>
+              <td><button class="btn btn--outline btn--sm" data-view="${a.id}">${escapeHtml(a.patient_name)}</button></td>
               <td><span class="attendance-tag attendance-tag--${a.attendance_type || 'presencial'}">${attendanceLabel(a.attendance_type)}</span></td>
-              <td>${a.patient_phone}</td>
-              <td>${a.service_name || '—'}</td>
+              <td>${escapeHtml(a.patient_phone)}</td>
+              <td>${escapeHtml(a.service_name || '—')}</td>
               <td><span class="status status-${a.status}">${statusLabel(a.status)}</span></td>
               <td class="actions">
                 <button class="btn btn--outline btn--sm" data-edit="${a.id}">Editar</button>
+                ${a.status === 'pending' ? `<button class="btn btn--primary btn--sm" data-confirm="${a.id}">Confirmar</button>` : ''}
+                ${a.status !== 'cancelled' && a.status !== 'completed' ? `<button class="btn btn--outline btn--sm" data-complete="${a.id}">Concluir</button>` : ''}
                 ${a.status !== 'cancelled' ? `<button class="btn btn--outline btn--sm btn--warn" data-cancel="${a.id}">Cancelar</button>` : ''}
                 <button class="btn btn--danger btn--sm" data-delete="${a.id}">Excluir</button>
               </td>
@@ -400,10 +552,29 @@
     `;
 
     document.getElementById('btnNewAppt').addEventListener('click', () => showApptModal());
+    content.querySelectorAll('[data-view]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const a = state.appointments.find((x) => x.id === Number(btn.dataset.view));
+        if (a) showApptDetail(a);
+      });
+    });
     content.querySelectorAll('[data-edit]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const a = state.appointments.find((x) => x.id === Number(btn.dataset.edit));
         showApptModal(a);
+      });
+    });
+    content.querySelectorAll('[data-confirm]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        await api(`/appointments/${btn.dataset.confirm}/confirm`, { method: 'POST' });
+        renderAppointments();
+      });
+    });
+    content.querySelectorAll('[data-complete]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Marcar esta consulta como concluída?')) return;
+        await api(`/appointments/${btn.dataset.complete}/complete`, { method: 'POST' });
+        renderAppointments();
       });
     });
     content.querySelectorAll('[data-cancel]').forEach((btn) => {
@@ -666,12 +837,54 @@
     document.getElementById('sidebar').classList.toggle('open');
   });
 
+  function connectLiveSync() {
+    if (state.eventSource) {
+      try { state.eventSource.close(); } catch { /* ignore */ }
+    }
+
+    const es = new EventSource('/api/admin/events', { withCredentials: true });
+    state.eventSource = es;
+
+    es.addEventListener('connected', () => {
+      state.syncConnected = true;
+      updateSyncIndicator();
+    });
+
+    es.addEventListener('appointment', () => {
+      if (state.view === 'calendar' || state.view === 'appointments') {
+        clearTimeout(state.syncTimer);
+        state.syncTimer = setTimeout(() => {
+          render().catch(() => {});
+        }, 250);
+      }
+    });
+
+    es.onerror = () => {
+      state.syncConnected = false;
+      updateSyncIndicator();
+    };
+  }
+
+  function updateSyncIndicator() {
+    const dot = content?.querySelector('.sync-dot');
+    if (!dot) return;
+    dot.classList.toggle('live', state.syncConnected);
+    dot.classList.toggle('reconnecting', !state.syncConnected);
+    const label = dot.parentElement;
+    if (label && label.childNodes.length) {
+      // keep text node after the dot
+      const text = [...label.childNodes].find((n) => n.nodeType === Node.TEXT_NODE);
+      if (text) text.textContent = state.syncConnected ? 'Ao vivo' : 'Reconectando…';
+    }
+  }
+
   async function init() {
     try {
       const me = await api('/me');
       document.getElementById('adminUser').textContent = me.username;
       state.services = await api('/services');
       await loadSettings();
+      connectLiveSync();
       render();
     } catch {
       window.location.href = '/admin/login';
