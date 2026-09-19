@@ -325,7 +325,7 @@ ul {
   position: absolute;
   inset: 0 0 0 36%;
   background:
-    url('../imagens/hero-renata.jpg') 70% center / cover no-repeat;
+    url('../imagens/hero-renata.png') 70% center / cover no-repeat;
   pointer-events: none;
 }
 
