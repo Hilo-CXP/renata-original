@@ -45,9 +45,14 @@ if not exist .env (
   copy .env.example .env >nul
 )
 
-if not exist data\agenda.db (
-  echo  Configurando banco de dados...
-  call npm run setup
+echo  Sincronizando login do painel com o arquivo .env...
+call npm run setup
+
+echo.
+echo  Verificando porta 3000...
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3000" ^| findstr "LISTENING"') do (
+  echo  Encerrando servidor antigo na porta 3000 ^(PID %%a^)...
+  taskkill /F /PID %%a >nul 2>&1
 )
 
 echo.
@@ -55,8 +60,8 @@ echo  ====================================
 echo  Site:   http://localhost:3000
 echo  Admin:  http://localhost:3000/admin/login
 echo.
-echo  Login:  admin
-echo  Senha:   AltereSenhaForte123!
+echo  Login e senha: veja ADMIN_USERNAME e ADMIN_PASSWORD no arquivo .env
+echo  Padrao (.env): admin / AltereSenhaForte123!
 echo  ====================================
 echo.
 echo  Mantenha esta janela aberta enquanto usar o site.

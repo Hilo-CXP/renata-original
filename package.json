@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "setup": "node server/setup.js"
+    "setup": "node server/setup.js",
+    "reset-admin": "node server/setup.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

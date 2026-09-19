@@ -3,44 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Renata Batista — Psicóloga e Arteterapeuta. Acompanhamento terapêutico para adultos, casais e crianças. Atendimento online e presencial.">
+  <meta name="description" content="Renata Batista — Psicóloga e Arteterapeuta. Acompanhamento psicológico para adultos, adolescentes e crianças. Atendimento online e presencial.">
   <title>Renata Batista | Psicologia & Arteterapia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@1,500&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Lato:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/booking.css">
 </head>
 <body>
 
-  <!-- Header -->
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="#inicio" class="logo">
-        <div class="logo__icon">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="24" cy="24" r="23" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M14 32 C14 32 18 18 24 18 C30 18 34 32 34 32" stroke="currentColor" stroke-width="1.5" fill="none"/>
-            <circle cx="24" cy="22" r="4" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-        </div>
-        <div class="logo__text">
-          <span class="logo__name">Renata Batista</span>
-          <span class="logo__subtitle">Psicologia & Arteterapia</span>
-        </div>
+        <img src="imagens/logo-renata.png" alt="Renata Batista — Psicóloga e Arteterapeuta" class="logo__img" width="200" height="107">
       </a>
 
       <nav class="nav" id="nav">
         <ul class="nav__list">
           <li><a href="#inicio" class="nav__link">Início</a></li>
+          <li><a href="#servicos" class="nav__link">Especialidades</a></li>
           <li><a href="#sobre" class="nav__link">Sobre</a></li>
-          <li><a href="#servicos" class="nav__link">Serviços</a></li>
-          <li><a href="#agendar" class="nav__link">Agendar</a></li>
+          <li><a href="#como-chegar" class="nav__link">Como Chegar</a></li>
           <li><a href="#contato" class="nav__link">Contato</a></li>
         </ul>
+        <a href="#agendar" class="btn btn--primary btn--sm nav__cta">Agendar Consulta</a>
       </nav>
 
-      <a href="#agendar" class="btn btn--primary btn--sm header__cta">Agendar consulta</a>
+      <a href="#agendar" class="btn btn--primary btn--sm header__cta">Agendar Consulta</a>
 
       <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
         <span></span>
@@ -52,185 +42,179 @@
 
   <main>
 
-    <!-- Hero -->
     <section class="hero" id="inicio">
-      <div class="hero__leaf" aria-hidden="true">
-        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 20 C60 60 20 100 40 160 C70 130 130 70 100 20Z" fill="currentColor" opacity="0.06"/>
-        </svg>
-      </div>
+      <div class="hero__photo" aria-hidden="true"></div>
       <div class="container hero__inner">
         <div class="hero__content">
-          <span class="section-tag">Psicologia & Arteterapia</span>
-          <h1 class="hero__title">Cuidar da mente é um ato de amor</h1>
+          <span class="section-tag">Psicóloga • Arteterapeuta</span>
+          <h1 class="hero__title">Cuidar da mente<br>é um ato<br>de amor.</h1>
           <p class="hero__subtitle">
-            Acompanhamento terapêutico para adultos, casais e crianças.
-            Um espaço seguro para crescer, curar e se transformar.
+            Acompanhamento psicológico para adultos, adolescentes e crianças.
+            Um espaço seguro para crescer, criar e se transformar.
           </p>
           <div class="hero__actions">
-            <a href="#agendar" class="btn btn--primary">Agendar consulta</a>
-            <a href="#sobre" class="btn btn--outline">Conheça Renata</a>
+            <a href="#agendar" class="btn btn--primary">
+              Agendar Consulta
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#sobre" class="btn btn--outline">
+              Conheça Renata
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
           </div>
-          <div class="hero__badges">
-            <div class="badge">
-              <div class="badge__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-              </div>
-              <span>CRP 06/145801</span>
+          <div class="hero__stats">
+            <div class="hero__stat">
+              <strong>CRP</strong>
+              <span>06/145801</span>
             </div>
-            <div class="badge">
-              <div class="badge__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-              </div>
-              <span>CFP (Comportamental)</span>
+            <div class="hero__stat">
+              <strong>CFP</strong>
+              <span>Conselho Federal</span>
             </div>
-            <div class="badge">
-              <div class="badge__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
-              </div>
-              <span>Online & Presencial</span>
-            </div>
-          </div>
-        </div>
-        <div class="hero__visual">
-          <div class="hero__image-wrap">
-            <img
-              src="imagens/renata.perfil3.png"
-              alt="Renata Batista em ambiente acolhedor com estantes de livros"
-              class="hero__image"
-              loading="eager"
-            >
-            <div class="hero__quote">
-              <p>"A arte é a linguagem da alma quando as palavras não chegam."</p>
-              <cite>— Renata Batista</cite>
+            <div class="hero__stat">
+              <strong>Online</strong>
+              <span>e Presencial</span>
             </div>
           </div>
         </div>
+        <blockquote class="hero__quote">
+          <p>“A arte é a linguagem da alma quando as palavras não chegam.”</p>
+          <cite>Renata Batista</cite>
+        </blockquote>
       </div>
     </section>
 
-    <!-- Sobre -->
     <section class="about" id="sobre">
       <div class="container about__inner">
         <div class="about__content">
           <span class="section-tag">Sobre</span>
-          <h2 class="section-title">Uma presença que acolhe e transforma</h2>
+          <h2 class="section-title">Uma presença que<br>acolhe e transforma</h2>
           <p>
-            Sou psicóloga clínica e arteterapeuta, dedicada a acompanhar pessoas
-            em suas jornadas de autoconhecimento, cura emocional e crescimento pessoal.
-            Acredito que cada indivíduo carrega dentro de si a capacidade de se transformar —
-            e meu papel é oferecer um espaço seguro para que essa transformação aconteça.
+            Psicóloga clínica e arteterapeuta, Renata Batista acredita que a cura passa pela
+            expressão criativa e pelo autoconhecimento. Com formação sólida e sensibilidade
+            humana, ela constrói com cada paciente um espaço de escuta verdadeira.
           </p>
           <p>
-            Com formação sólida e experiência clínica, trabalho com abordagem humanista
-            integrando recursos da arteterapia como ferramenta de expressão e elaboração emocional.
+            Sua abordagem integra psicoterapia e arteterapia para alcançar camadas da
+            experiência que as palavras sozinhas muitas vezes não alcançam. Atende adultos,
+            casais, crianças e adolescentes, de forma presencial e online.
           </p>
           <blockquote class="about__quote">
-            "Meu compromisso é estar presente, ouvir com atenção e caminhar ao seu lado
-            com respeito, ética e sensibilidade."
+            “Cada pessoa carrega uma história única — e é nessa singularidade que mora o caminho para a transformação.”
           </blockquote>
           <ul class="about__list">
-            <li>
-              <span class="about__check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-              </span>
-              Abordagem humanista e acolhedora
+            <li class="about__item about__item--purple">
+              <span class="about__dot" aria-hidden="true"></span>
+              <div>
+                <strong>Abordagem humanizada</strong>
+                <span>Atendimento que respeita o ritmo e a singularidade de cada pessoa</span>
+              </div>
             </li>
-            <li>
-              <span class="about__check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-              </span>
-              Arte como linguagem de expressão
+            <li class="about__item about__item--pink">
+              <span class="about__dot" aria-hidden="true"></span>
+              <div>
+                <strong>Arte como linguagem</strong>
+                <span>Recursos expressivos que ampliam o alcance do processo terapêutico.</span>
+              </div>
             </li>
-            <li>
-              <span class="about__check">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-              </span>
-              Ética e escuta qualificada
+            <li class="about__item about__item--teal">
+              <span class="about__dot" aria-hidden="true"></span>
+              <div>
+                <strong>Sigilo e ética</strong>
+                <span>Ambiente seguro, confidencial e comprometido com o bem-estar real.</span>
+              </div>
             </li>
           </ul>
         </div>
         <div class="about__visual">
           <div class="about__image-wrap">
             <img
-              src="imagens/renata.perfil.jpg"
-              alt="Retrato profissional de Renata Batista"
+              src="imagens/sobre-renata.jpg"
+              alt="Renata Batista junto à janela, em retrato profissional"
               class="about__image"
               loading="lazy"
             >
-            <div class="about__crp-badge">CRP 06/145801</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Serviços -->
     <section class="services" id="servicos">
       <div class="container">
         <div class="services__header">
           <div class="services__header-left">
             <span class="section-tag">Serviços</span>
-            <h2 class="section-title">O que posso oferecer a você</h2>
+            <h2 class="section-title">O que posso<br>oferecer a você</h2>
           </div>
           <p class="services__intro">
-            Cada pessoa é única, e por isso ofereço diferentes modalidades de
-            atendimento para atender às suas necessidades específicas.
+            Modalidades integradas que unem rigor técnico e escuta sensível para cuidar de você em cada fase da vida.
           </p>
         </div>
 
         <div class="services__grid">
-          <article class="service-card">
-            <div class="service-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <article class="service-card service-card--purple">
+            <div class="service-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/></svg>
             </div>
             <h3>Psicoterapia</h3>
-            <p>Atendimento clínico individual para adultos, com foco no autoconhecimento, manejo emocional e superação de dificuldades.</p>
+            <p>Espaço de escuta e elaboração para questões emocionais, ansiedade, depressão e autoconhecimento.</p>
           </article>
 
-          <article class="service-card">
-            <div class="service-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          <article class="service-card service-card--pink">
+            <div class="service-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2"/><circle cx="19" cy="13" r="2"/><circle cx="6.5" cy="14.5" r="2"/><path d="M12 22a8 8 0 0 1 0-16 7 7 0 0 1 6.2 3.8"/><path d="M9 10.2A8 8 0 0 0 12 22"/></svg>
             </div>
             <h3>Arteterapia</h3>
-            <p>Uso da arte como ferramenta terapêutica para expressão emocional, elaboração de conflitos e desenvolvimento pessoal.</p>
+            <p>A expressão criativa como ponte para sentimentos que as palavras não alcançam.</p>
           </article>
 
-          <article class="service-card">
-            <div class="service-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <article class="service-card service-card--purple">
+            <div class="service-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <h3>Terapia de Casal</h3>
-            <p>Espaço para casais fortalecerem a comunicação, resolver conflitos e reconstruírem a conexão emocional.</p>
+            <p>Apoio para melhorar a comunicação, a intimidade e a saúde do relacionamento.</p>
           </article>
 
-          <article class="service-card">
-            <div class="service-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+          <article class="service-card service-card--pink">
+            <div class="service-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
             </div>
             <h3>Terapia Infantil</h3>
-            <p>Atendimento especializado para crianças, utilizando linguagem lúdica e arteterapia para expressão emocional.</p>
+            <p>Atendimento lúdico e artístico para crianças, com foco no desenvolvimento emocional saudável.</p>
           </article>
 
-          <article class="service-card">
-            <div class="service-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+          <article class="service-card service-card--purple">
+            <div class="service-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 20s.5-6 5-6 5 6 5 6"/><path d="M12 14V8"/><path d="M9 10c-2-3 0-6 3-6 1 2 3 3 3 5"/></svg>
             </div>
             <h3>Desenvolvimento Pessoal</h3>
-            <p>Processo focado no crescimento pessoal, autoconfiança, propósito de vida e realização de potencial.</p>
+            <p>Crescimento interior, fortalecimento da autoestima e construção de uma vida com mais sentido.</p>
           </article>
 
-          <article class="service-card">
-            <div class="service-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          <article class="service-card service-card--pink">
+            <div class="service-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
             </div>
             <h3>Orientação Profissional</h3>
-            <p>Apoio na escolha e transição de carreira, alinhando propósito pessoal com realização profissional.</p>
+            <p>Clareza sobre vocação, transições de carreira e realização no campo profissional.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- Agendamento -->
+    <section class="cta-banner" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta-banner__inner">
+          <div class="cta-banner__text">
+            <h2 id="cta-title">Pronto para começar<br>sua jornada?</h2>
+            <p>Atendimento presencial e online · Segunda a Sábado</p>
+          </div>
+          <a href="https://wa.me/5511992789380" class="btn btn--white" target="_blank" rel="noopener noreferrer">Falar no Whatsapp</a>
+        </div>
+      </div>
+    </section>
+
     <section class="booking" id="agendar">
       <div class="container">
         <div class="booking__header">
@@ -252,42 +236,10 @@
       </div>
     </section>
 
-    <!-- Depoimentos / Google Avaliações -->
     <section class="reviews" id="avaliacoes">
       <div class="container">
         <div class="reviews__header">
-          <h2 class="reviews__title">Depoimentos</h2>
-          <p class="reviews__subtitle">O que dizem sobre o processo terapêutico</p>
-        </div>
-
-        <div class="reviews__summary">
-          <div class="reviews__summary-left">
-            <div class="reviews__summary-brand">
-              <span class="reviews__google-text" aria-label="Google">
-                <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>
-              </span>
-              <span>Avaliações</span>
-            </div>
-            <div class="reviews__summary-rating">
-              <span class="reviews__score">5.0</span>
-              <span class="reviews__stars" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              </span>
-              <span class="reviews__count">Com base em 70 avaliações</span>
-            </div>
-          </div>
-          <a
-            class="reviews__write-btn"
-            href="https://www.google.com/maps/search/?api=1&query=Psic%C3%B3loga+e+arteterapeuta+Renata+Batista,+R.+Dr.+Aureliano+Barreiros,+641+-+Itaquera,+S%C3%A3o+Paulo+-+SP,+08210-450"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Escrever uma avaliação
-          </a>
+          <h2 class="reviews__title">A confiança de quem já iniciou essa jornada</h2>
         </div>
 
         <div class="reviews__carousel" data-reviews-carousel>
@@ -298,111 +250,123 @@
           <div class="reviews__viewport">
             <div class="reviews__track" data-reviews-track>
               <article class="review-card">
-                <span class="review-card__g" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                </span>
-                <div class="review-card__avatar" style="--avatar-bg:#6b4d8a">N</div>
-                <h3 class="review-card__name">N. V. <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span></h3>
-                <div class="review-card__stars" aria-label="5 de 5 estrelas">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <div class="review-card__top">
+                  <div class="review-card__stars" aria-label="5 de 5 estrelas">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
+                      <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span class="review-card__g" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  </span>
                 </div>
-                <p class="review-card__text">Renata é uma ótima profissional, ela é atenciosa, assertiva e tem colaborado muito para a melhora dos pontos que eu tenho a desenvolver! Seu trato é muito cordial e respeitoso! Eu indico ela para todos que como eu em algum momento da vida já se sentiram perdidos, profissional, pessoal e ou emocionalmente!</p>
+                <p class="review-card__text">Renata é uma ótima profissional, ela é atenciosa, assertiva e tem colaborado muito para a melhora dos pontos que eu tenho a desenvolver! Seu trato é muito cordial e respeitoso.</p>
+                <p class="review-card__author">N. V.</p>
               </article>
 
               <article class="review-card">
-                <span class="review-card__g" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                </span>
-                <div class="review-card__avatar" style="--avatar-bg:#4a3070">S</div>
-                <h3 class="review-card__name">S. P. <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span></h3>
-                <div class="review-card__stars" aria-label="5 de 5 estrelas">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <div class="review-card__top">
+                  <div class="review-card__stars" aria-label="5 de 5 estrelas">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
+                      <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span class="review-card__g" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  </span>
                 </div>
-                <p class="review-card__text">Muito agradável, no começo não conseguia falar, mas ao decorrer das conversas consegui expor meus problemas. Ficou pesado no começo, mas ficou bem leve depois. Foram 6 meses muito importantes. Renata, obrigado — você realmente é uma excelente profissional. Aquilo que me atrapalhava hoje já não é um problema. Gratidão!</p>
+                <p class="review-card__text">Muito agradável, no começo não conseguia falar, mas ao decorrer das conversas consegui expor meus problemas. Foram 6 meses muito importantes. Gratidão!</p>
+                <p class="review-card__author">S. P.</p>
               </article>
 
               <article class="review-card">
-                <span class="review-card__g" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                </span>
-                <div class="review-card__avatar" style="--avatar-bg:#8a6a4a">L</div>
-                <h3 class="review-card__name">L. D. <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span></h3>
-                <div class="review-card__stars" aria-label="5 de 5 estrelas">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <div class="review-card__top">
+                  <div class="review-card__stars" aria-label="5 de 5 estrelas">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
+                      <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span class="review-card__g" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  </span>
                 </div>
-                <p class="review-card__text">Ela é incrível, sou apaixonada por ela, profissional carinhosa e que passa paz na voz e no olhar... Só tenho a agradecer o universo por ela estar no meu caminho.</p>
+                <p class="review-card__text">Ela é incrível, profissional carinhosa e que passa paz na voz e no olhar. Só tenho a agradecer o universo por ela estar no meu caminho.</p>
+                <p class="review-card__author">L. D.</p>
               </article>
 
               <article class="review-card">
-                <span class="review-card__g" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                </span>
-                <div class="review-card__avatar" style="--avatar-bg:#2d1b4e">R</div>
-                <h3 class="review-card__name">R. F. <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span></h3>
-                <div class="review-card__stars" aria-label="5 de 5 estrelas">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <div class="review-card__top">
+                  <div class="review-card__stars" aria-label="5 de 5 estrelas">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
+                      <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span class="review-card__g" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  </span>
                 </div>
-                <p class="review-card__text">Ótima profissional, tem nos ajudado muito. É difícil achar profissionais que supra nossas necessidades, ainda mais quando se faz terapia de casal. Me surpreendi positivamente, só tenho a agradecer.</p>
+                <p class="review-card__text">Ótima profissional, tem nos ajudado muito. É difícil achar profissionais que supra nossas necessidades, ainda mais quando se faz terapia de casal.</p>
+                <p class="review-card__author">R. F.</p>
               </article>
 
               <article class="review-card">
-                <span class="review-card__g" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                </span>
-                <div class="review-card__avatar" style="--avatar-bg:#a67c7c">M</div>
-                <h3 class="review-card__name">M. M. <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span></h3>
-                <div class="review-card__stars" aria-label="5 de 5 estrelas">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <div class="review-card__top">
+                  <div class="review-card__stars" aria-label="5 de 5 estrelas">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
+                      <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span class="review-card__g" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  </span>
                 </div>
                 <p class="review-card__text">O melhor dia da minha semana é quando eu passo com a Renata! O local é aconchegante, tranquilo e a Renata é maravilhosa como profissional!</p>
+                <p class="review-card__author">M. M.</p>
               </article>
 
               <article class="review-card">
-                <span class="review-card__g" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                </span>
-                <div class="review-card__avatar" style="--avatar-bg:#5c6b8a">T</div>
-                <h3 class="review-card__name">T. G. <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
-                  <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span></h3>
-                <div class="review-card__stars" aria-label="5 de 5 estrelas">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <div class="review-card__top">
+                  <div class="review-card__stars" aria-label="5 de 5 estrelas">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="review-card__verified" title="Avaliação do Google" aria-label="Verificado">
+                      <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="10" fill="#4285F4"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                  </div>
+                  <span class="review-card__g" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  </span>
                 </div>
-                <p class="review-card__text">Tive um acolhimento muito amoroso, num momento muito difícil de minha vida. A Renata tocou minha alma com muita delicadeza e firmeza ao mesmo tempo. Muito obrigada!</p>
+                <p class="review-card__text">Tive um acolhimento muito amoroso, num momento muito difícil de minha vida. A Renata tocou minha alma com muita delicadeza e firmeza ao mesmo tempo.</p>
+                <p class="review-card__author">T. G.</p>
               </article>
             </div>
           </div>
@@ -414,157 +378,130 @@
       </div>
     </section>
 
-    <!-- Contato -->
     <section class="contact" id="contato">
       <div class="container contact__inner">
         <div class="contact__info">
           <span class="section-tag section-tag--light">Contato</span>
-          <h2 class="section-title section-title--light">Vamos dar o primeiro passo juntos?</h2>
+          <h2 class="section-title section-title--light">Vamos dar<br>o primeiro passo<br>juntos?</h2>
           <p class="contact__desc">
-            Estou aqui para ouvir você. Entre em contato e agende sua primeira consulta.
-            Será um prazer caminhar ao seu lado nesta jornada.
+            Dar esse passo requer coragem — e você não precisa fazê-lo sozinho.
+            Entre em contato para agendar uma consulta ou tirar qualquer dúvida.
           </p>
           <ul class="contact__list">
             <li>
-              <span class="contact__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               </span>
               <div>
-                <strong>WhatsApp</strong>
-                <span>(11) 99278-9380</span>
+                <span class="contact__label">Whatsapp</span>
+                <a href="https://wa.me/5511992789380" class="contact__value" target="_blank" rel="noopener noreferrer">11 9 9278-9380</a>
+                <span class="contact__hint">Clique para conversar</span>
               </div>
             </li>
             <li>
-              <span class="contact__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               </span>
               <div>
-                <strong>E-mail</strong>
-                <span>renatabatistapsicologa@gmail.com</span>
+                <span class="contact__label">E-mail</span>
+                <a href="mailto:contato@renatapsicoarte.com.br" class="contact__value">contato@renatapsicoarte.com.br</a>
+                <span class="contact__hint">Resposta em até 24h</span>
               </div>
             </li>
             <li>
-              <span class="contact__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               </span>
               <div>
-                <strong>Instagram</strong>
-                <span>@renatabatista.arteterapia</span>
+                <span class="contact__label">Instagram</span>
+                <a href="https://instagram.com/renatabatista.arteterapia" class="contact__value" target="_blank" rel="noopener noreferrer">@renatabatista.arteterapia</a>
+                <span class="contact__hint">Acompanhe nossos conteúdos</span>
               </div>
             </li>
             <li>
-              <span class="contact__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </span>
               <div>
-                <strong>Endereço</strong>
-                <span class="contact__address-text">
-                  R. Dr. Aureliano Barreiros, 641 — Itaquera<br>
-                  São Paulo — SP, 08210-450
-                </span>
-              </div>
-            </li>
-            <li>
-              <span class="contact__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </span>
-              <div>
-                <strong>Horário</strong>
-                <span>Segunda a sábado, 8h às 20h</span>
+                <span class="contact__label">Horários</span>
+                <span class="contact__value">Seg–Sex: 8h às 20h · Sáb: 9h às 14h</span>
+                <span class="contact__hint">Presencial e Online</span>
               </div>
             </li>
           </ul>
-
-          <div class="contact__map-card">
-            <iframe
-              title="Psicóloga e arteterapeuta Renata Batista — Itaquera, São Paulo"
-              src="https://maps.google.com/maps?q=Psic%C3%B3loga+e+arteterapeuta+Renata+Batista,+R.+Dr.+Aureliano+Barreiros,+641+-+Itaquera,+S%C3%A3o+Paulo+-+SP,+08210-450&hl=pt-BR&z=17&output=embed"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen=""
-            ></iframe>
-          </div>
         </div>
 
         <form class="contact__form" id="contactForm" novalidate>
+          <h3 class="contact__form-title">Envie uma mensagem</h3>
           <div class="form-group">
-            <label for="nome">Nome completo</label>
-            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+            <label for="nome">Nome Completo <span aria-hidden="true">*</span></label>
+            <input type="text" id="nome" name="nome" placeholder="Seu Nome" required>
           </div>
           <div class="form-group">
-            <label for="email">E-mail</label>
-            <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+            <label for="email">E-mail <span aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" placeholder="E-mail" required>
           </div>
           <div class="form-group">
-            <label for="whatsapp">WhatsApp</label>
-            <input type="tel" id="whatsapp" name="whatsapp" placeholder="(00) 00000-0000">
+            <label for="whatsapp">WhatsApp <span aria-hidden="true">*</span></label>
+            <input type="tel" id="whatsapp" name="whatsapp" placeholder="(11) 9999-9999" required>
           </div>
           <div class="form-group">
-            <label for="mensagem">Mensagem</label>
-            <textarea id="mensagem" name="mensagem" rows="4" placeholder="Como posso ajudar você?" required></textarea>
+            <label for="mensagem">Mensagem <span aria-hidden="true">*</span></label>
+            <textarea id="mensagem" name="mensagem" rows="4" placeholder="Como posso lhe ajudar?" required></textarea>
           </div>
-          <button type="submit" class="btn btn--primary btn--full">Enviar mensagem</button>
+          <button type="submit" class="btn btn--primary btn--full">Enviar Mensagem</button>
+          <p class="form-note">Responderei em até 24 horas</p>
           <p class="form-feedback" id="formFeedback" role="status" aria-live="polite"></p>
         </form>
       </div>
     </section>
 
+    <section class="location" id="como-chegar">
+      <div class="container">
+        <div class="location__header">
+          <span class="section-tag">Como chegar</span>
+          <h2 class="section-title">Consultório em Itaquera</h2>
+          <p>R. Dr. Aureliano Barreiros, 641 — Itaquera, São Paulo — SP, 08210-450</p>
+        </div>
+        <div class="location__map">
+          <iframe
+            title="Psicóloga e arteterapeuta Renata Batista — Itaquera, São Paulo"
+            src="https://maps.google.com/maps?q=Psic%C3%B3loga+e+arteterapeuta+Renata+Batista,+R.+Dr.+Aureliano+Barreiros,+641+-+Itaquera,+S%C3%A3o+Paulo+-+SP,+08210-450&hl=pt-BR&z=17&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen=""
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
         <a href="#inicio" class="logo logo--light">
-          <div class="logo__icon">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="24" cy="24" r="23" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M14 32 C14 32 18 18 24 18 C30 18 34 32 34 32" stroke="currentColor" stroke-width="1.5" fill="none"/>
-              <circle cx="24" cy="22" r="4" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-          </div>
-          <div class="logo__text">
-            <span class="logo__name">Renata Batista</span>
-            <span class="logo__subtitle">Psicologia & Arteterapia</span>
-          </div>
+          <img src="imagens/logo-renata.png" alt="Renata Batista" class="logo__img" width="180" height="96">
         </a>
-        <p>Cuidar da mente é um ato de amor. Acompanhamento terapêutico com acolhimento, ética e sensibilidade.</p>
+        <p>Um espaço de acolhimento, criatividade e transformação através da psicoterapia e arteterapia</p>
       </div>
 
       <div class="footer__nav">
         <h4>Navegação</h4>
         <ul>
           <li><a href="#inicio">Início</a></li>
+          <li><a href="#servicos">Especialidades</a></li>
           <li><a href="#sobre">Sobre</a></li>
-          <li><a href="#servicos">Serviços</a></li>
-          <li><a href="#avaliacoes">Avaliações</a></li>
+          <li><a href="#como-chegar">Como Chegar</a></li>
           <li><a href="#contato">Contato</a></li>
-        </ul>
-      </div>
-
-      <div class="footer__contact">
-        <h4>Contato</h4>
-        <ul>
-          <li>(11) 99278-9380</li>
-          <li>renatabatistapsicologa@gmail.com</li>
-          <li>@renatabatista.arteterapia</li>
-          <li>
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Psic%C3%B3loga+e+arteterapeuta+Renata+Batista,+R.+Dr.+Aureliano+Barreiros,+641+-+Itaquera,+S%C3%A3o+Paulo+-+SP,+08210-450"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="footer__map-link"
-            >
-              Itaquera, São Paulo — SP
-            </a>
-          </li>
         </ul>
       </div>
     </div>
 
     <div class="footer__bottom">
       <div class="container footer__bottom-inner">
-        <p>&copy; 2026 Renata Batista. Todos os direitos reservados. CRP 06/145801</p>
+        <p>CRP 06/145801 · Psicóloga e Arteterapeuta</p>
+        <p>&copy; 2026 Renata Batista. Todos os direitos reservados.</p>
         <button class="scroll-top" id="scrollTop" aria-label="Voltar ao topo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
         </button>
@@ -572,9 +509,8 @@
     </div>
   </footer>
 
-  <!-- WhatsApp flutuante -->
   <a href="https://wa.me/5511992789380" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-3 11H7v-2h10v2zm2-4H7V7h12v2z"/></svg>
   </a>
 
   <script src="js/main.js"></script>

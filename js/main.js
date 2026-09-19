@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     menuToggle.setAttribute('aria-expanded', isOpen);
   });
 
-  nav.querySelectorAll('.nav__link').forEach(link => {
+  nav.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       nav.classList.remove('open');
       menuToggle.classList.remove('active');
@@ -64,7 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const getPerView = () => {
       if (window.innerWidth <= 768) return 1;
       if (window.innerWidth <= 1024) return 2;
-      return 3;
+      if (window.innerWidth <= 1100) return 3;
+      return 4;
     };
 
     const update = () => {

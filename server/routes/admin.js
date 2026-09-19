@@ -219,6 +219,11 @@ router.post('/appointments', authMiddleware, async (req, res) => {
 
     appointmentChanged('created', appointment, { source: 'admin' });
 
+    if (status === 'confirmed') {
+      await sendClientConfirmations(appointment).catch((err) => {
+        console.error('Client confirmation error (admin create):', err.message);
+      });
+    }
     if (settings.notify_email && status === 'confirmed') {
       await notifyNewBooking(appointment, settings.notify_email).catch(() => {});
     }
@@ -334,6 +339,13 @@ router.put('/appointments/:id', authMiddleware, async (req, res) => {
     });
 
     appointmentChanged(dateChanged ? 'rescheduled' : 'updated', updated, { source: 'admin' });
+
+    if (statusChanged && newStatus === 'confirmed' && existing.status !== 'confirmed') {
+      await sendClientConfirmations(updated).catch((err) => {
+        console.error('Client confirmation error (admin update):', err.message);
+      });
+    }
+
     res.json(updated);
   } catch (err) {
     if (err.code === 'SLOT_TAKEN' || err.message === 'SLOT_TAKEN') {
@@ -367,7 +379,13 @@ router.post('/appointments/:id/confirm', authMiddleware, async (req, res) => {
   });
 
   appointmentChanged('confirmed', updated, { source: 'admin' });
-  res.json(updated);
+
+  const notifications = await sendClientConfirmations(updated).catch((err) => {
+    console.error('Client confirmation error (admin confirm):', err.message);
+    return null;
+  });
+
+  res.json({ ...updated, notifications });
 });
 
 router.post('/appointments/:id/complete', authMiddleware, async (req, res) => {

@@ -1,7 +1,7 @@
 /* Booking section */
 .booking {
-  padding: 100px 0;
-  background: var(--lavender-pale);
+  padding: 40px 0 80px;
+  background: var(--cream);
 }
 
 .booking__header {
